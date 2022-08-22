@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "xabikos.javascriptsnippets",
+        "ms-vscode.vscode-typescript-next",
+        "gregorbiswanger.json2ts",
+        "stringham.move-ts",
+        "christian-kohler.path-intellisense",
+        "antfu.vite"
+    ]
+}
