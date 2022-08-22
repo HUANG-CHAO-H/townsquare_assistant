@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         血染钟楼（说书人）助手
+// @name         血染钟楼助手(base)
 // @namespace    http://tampermonkey.net/
 // @version      0.0.1
 // @description  向https://www.imdodo.com/tools/clocktower/页面注入一些JavaScript代码，来帮助说书人完成一些自动化操作，让说书人能够更加高效的工作
@@ -17,7 +17,7 @@ async function GameStateJSONClick() {
             return console.error("未捕获到li数组");
         if (liArray.length === 9) {
             if (liArray[4].innerHTML.search("file-code") > 0) {
-                dispatchClickEvent(liArray[4]);
+                await dispatchClickEvent(liArray[4]);
                 return;
             }
         }
@@ -25,7 +25,7 @@ async function GameStateJSONClick() {
         const helpSvg = document.querySelector("div.menu > ul > li.tabs > svg.fa-question");
         if (!helpSvg)
             return console.error("未捕获到help按钮");
-        dispatchClickEvent(helpSvg);
+        await dispatchClickEvent(helpSvg);
         await sleep(100);
     }
     console.error("GameStateJSONClick 执行失败！！！");
