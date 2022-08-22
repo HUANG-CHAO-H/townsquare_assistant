@@ -1,0 +1,5 @@
+{
+    "scripts": {
+        "build": "npx tsc ./index.ts --module esnext --target esnext --sourceMap false --skipLibCheck true"
+    }
+}

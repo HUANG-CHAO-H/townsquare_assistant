@@ -1,0 +1,9 @@
+{
+    "extends": "../../tsconfig.json",
+    "files": ["./index.ts"],
+    "compilerOptions": {
+        "sourceMap": false,
+        // "removeComments": false,                     // 删除所有注释，除了以 /!*开头的版权信息。
+    },
+    "include": []
+}
