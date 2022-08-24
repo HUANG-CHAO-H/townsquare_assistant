@@ -7,29 +7,16 @@
 // @match        https://www.imdodo.com/tools/clocktower/
 // @icon         <$ICON$>
 // ==/UserScript==
-async function insertAssistantButton() {
-    for (let i = 0; i < 10; i++) {
-        const controlDiv = document.querySelector('div#app > div#controls');
-        if (!controlDiv) {
-            await sleep(100);
-            continue;
-        }
-        const button = document.createElement('button');
-        button.innerHTML = '助手';
-        button.onclick = () => onClick?.();
-        button.style.position = 'absolute';
-        button.style.top = '0';
-        button.style.left = '70%';
-        button.style.fontSize = 'large';
-        button.style.backgroundColor = 'aqua';
-        button.style.cursor = 'pointer';
-        document.body.appendChild(button);
-        break;
-    }
-}
-insertAssistantButton();
-let onClick;
-function onButtonClick(callback) { onClick = callback; }
+const button = document.createElement('button');
+button.innerHTML = '助手';
+button.style.position = 'absolute';
+button.style.top = '0';
+button.style.left = '70%';
+button.style.fontSize = 'large';
+button.style.backgroundColor = 'aqua';
+button.style.cursor = 'pointer';
+document.body.appendChild(button);
+function onButtonClick(callback) { button.onclick = callback; }
 /* **************************************************************************** */
 /* ****************************** 获取游戏状态JSON ****************************** */
 /* **************************************************************************** */
@@ -139,11 +126,9 @@ async function sendMessage(userIndex, message = "", autoSend = false) {
     }
     return true;
 }
+window.GameAssistant = { openChatWindow, sendMessage, readGameState, onButtonClick };
 if (unsafeWindow) {
     unsafeWindow.GameAssistant = { openChatWindow, sendMessage, readGameState, onButtonClick };
-}
-else {
-    window.GameAssistant = { openChatWindow, sendMessage, readGameState, onButtonClick };
 }
 // 休眠
 function sleep(time) {
