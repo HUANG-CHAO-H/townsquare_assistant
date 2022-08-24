@@ -1,5 +1,0 @@
-{
-    "scripts": {
-        "build-script": "npx tsc index.ts --module esnext --target esnext --sourceMap false --skipLibCheck true --outDir ../../public/油猴脚本"
-    }
-}

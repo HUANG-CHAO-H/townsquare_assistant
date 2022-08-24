@@ -17,14 +17,14 @@ button.style.fontSize = 'large';
 button.style.backgroundColor = 'aqua';
 button.style.cursor = 'pointer';
 document.body.appendChild(button);
-function onButtonClick(callback: () => void) {button.onclick = callback}
+export function onButtonClick(callback: () => void) {button.onclick = callback}
 
 
 /* **************************************************************************** */
 /* ****************************** 获取游戏状态JSON ****************************** */
 /* **************************************************************************** */
 
-async function readGameState(): Promise<GameStateJSON | null> {
+export async function readGameState(): Promise<GameStateJSON | null> {
   let textarea: HTMLTextAreaElement | null = null;
   for (let i = 0; i < 3; i++) {
     textarea = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
@@ -72,7 +72,7 @@ async function GameStateJSONClick() {
  * 打开某个玩家的聊天窗口
  * @param userIndex
  */
-async function openChatWindow(userIndex: number): Promise<boolean> {
+export async function openChatWindow(userIndex: number): Promise<boolean> {
   const allUser = document.querySelectorAll("#townsquare > ul.circle > li");
   if (userIndex < 1 || userIndex > allUser.length) {
     console.error("userIndex 超出了预定范围", userIndex);
@@ -108,7 +108,7 @@ async function openChatWindow(userIndex: number): Promise<boolean> {
  * @param message   消息内容
  * @param autoSend  是否自动发送（默认为false，需要说书人手动点击发送）
  */
-async function sendMessage(
+export async function sendMessage(
   userIndex: number,
   message: string = "",
   autoSend: boolean = false
@@ -142,18 +142,6 @@ async function sendMessage(
 }
 
 declare global {
-  interface Window {
-    GameAssistant?: {
-      openChatWindow: typeof openChatWindow;
-      sendMessage: typeof sendMessage;
-      readGameState: typeof readGameState;
-      // 当界面上的助手按钮被点击时
-      onButtonClick(callback: () => void): void
-    };
-  }
-
-  let unsafeWindow: Window
-
   interface GameStateJSON {
     bluffs: Array<unknown>;
     fabled: [];
@@ -188,16 +176,10 @@ declare global {
   }
 }
 
-window.GameAssistant = {openChatWindow, sendMessage, readGameState, onButtonClick}
-if (unsafeWindow) {
-  unsafeWindow.GameAssistant = {openChatWindow, sendMessage, readGameState, onButtonClick}
-}
-export {};
-
 
 
 // 休眠
-function sleep(time: number) {
+export function sleep(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
