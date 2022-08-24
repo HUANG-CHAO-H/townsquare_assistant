@@ -7,38 +7,33 @@
 // @match        https://www.imdodo.com/tools/clocktower/
 // @icon         <$ICON$>
 // ==/UserScript==
-const pageState = ReactiveData({
-    gameState: undefined,
-    chatHtml: '',
-    isReadingState: false,
-});
-async function observeDom() {
-    let app = null;
+async function insertAssistantButton() {
     for (let i = 0; i < 10; i++) {
-        app = document.querySelector('#app');
-        if (app)
-            break;
-        await sleep(200);
+        const controlDiv = document.querySelector('div#app > div#controls');
+        if (!controlDiv) {
+            await sleep(100);
+            continue;
+        }
+        const button = document.createElement('button');
+        button.innerHTML = '助手';
+        button.onclick = () => onClick?.();
+        button.style.position = 'absolute';
+        button.style.top = '0';
+        button.style.left = '70%';
+        button.style.fontSize = 'large';
+        button.style.backgroundColor = 'aqua';
+        button.style.cursor = 'pointer';
+        document.body.appendChild(button);
+        break;
     }
-    if (!app)
-        throw new Error('找不到 #app 的 div');
-    const appObserver = new MutationObserver(record => {
-        console.log('record = ', record);
-        readGameState();
-    });
-    appObserver.observe(app, { childList: true, subtree: true });
 }
-observeDom();
+insertAssistantButton();
+let onClick;
+function onButtonClick(callback) { onClick = callback; }
 /* **************************************************************************** */
 /* ****************************** 获取游戏状态JSON ****************************** */
 /* **************************************************************************** */
-
-let gameStateString = '';
 async function readGameState() {
-    if (pageState.isReadingState)
-        return;
-    pageState.isReadingState = true;
-    await sleep(100);
     let textarea = null;
     for (let i = 0; i < 3; i++) {
         textarea = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
@@ -49,14 +44,11 @@ async function readGameState() {
     }
     if (!textarea) {
         console.error("getGameState 执行失败！！！");
-        return;
+        return null;
     }
-    const str = textarea.value;
+    const stateValue = JSON.parse(textarea.value);
     await GameStateJSONClick();
-    if (gameStateString !== str) {
-        pageState.gameState = JSON.parse(textarea.value);
-    }
-    pageState.isReadingState = false;
+    return stateValue;
 }
 async function GameStateJSONClick() {
     for (let i = 0; i < 3; i++) {
@@ -148,12 +140,11 @@ async function sendMessage(userIndex, message = "", autoSend = false) {
     return true;
 }
 if (unsafeWindow) {
-    unsafeWindow.GameAssistant = { openChatWindow, sendMessage, pageState };
+    unsafeWindow.GameAssistant = { openChatWindow, sendMessage, readGameState, onButtonClick };
 }
 else {
-    window.GameAssistant = { openChatWindow, sendMessage, pageState };
+    window.GameAssistant = { openChatWindow, sendMessage, readGameState, onButtonClick };
 }
-
 // 休眠
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -170,58 +161,6 @@ function dispatchClickEvent(element) {
         setTimeout(() => resolve(false), 50);
         element.addEventListener("click", () => resolve(true), { once: true });
         element.dispatchEvent(createEvent);
-    });
-}
-function ReactiveData(record) {
-    // 监听函数集合
-    const listenerMap = new Map();
-    for (const key of Object.keys(record)) {
-        listenerMap.set(key, new Set());
-    }
-    // 浅拷贝 & 添加三个关键函数
-    const result = Object.assign({}, record);
-    result.observe = (key, callback) => {
-        const set = listenerMap.get(key);
-        if (set)
-            set.add(callback);
-        else
-            throw new Error('key is unknown');
-    };
-    result.unobserve = (key, callback) => {
-        const set = listenerMap.get(key);
-        if (set)
-            set.delete(callback);
-        else
-            throw new Error('key is unknown');
-    };
-    result.wait = (key, callback) => new Promise(resolve => {
-        if (callback(result[key]))
-            return resolve();
-        const set = listenerMap.get(key);
-        if (!set)
-            throw new Error('key is unknown');
-        const onceCallback = value => {
-            if (callback(value)) {
-                set.delete(onceCallback);
-                resolve();
-            }
-        };
-        set.add(onceCallback);
-    });
-    return new Proxy(result, {
-        set(target, p, value) {
-            if (target[p] === value)
-                return true;
-            if (p === 'observe' || p === 'unobserve' || p === 'wait')
-                return false;
-            const listeners = listenerMap.get(p);
-            if (!listeners)
-                return false;
-            target[p] = value;
-            for (let listener of listeners)
-                listener(value);
-            return true;
-        }
     });
 }
 export {};
