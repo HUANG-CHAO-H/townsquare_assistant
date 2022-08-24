@@ -8,10 +8,27 @@
 // @icon         <$ICON$>
 // ==/UserScript==
 
+
 /* **************************************************************************** */
 /* ****************************** 获取游戏状态JSON ****************************** */
 /* **************************************************************************** */
 
+async function readGameState(): Promise<GameStateJSON | null> {
+  let textarea: HTMLTextAreaElement | null = null;
+  for (let i = 0; i < 3; i++) {
+    textarea = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
+    if (textarea) break;
+    await GameStateJSONClick();
+    await sleep(100);
+  }
+  if (!textarea) {
+    console.error("getGameState 执行失败！！！");
+    return null;
+  }
+  const stateValue = JSON.parse(textarea.value);
+  await GameStateJSONClick();
+  return stateValue;
+}
 async function GameStateJSONClick() {
   for (let i = 0; i < 3; i++) {
     const liArray = document.querySelectorAll(
@@ -34,27 +51,6 @@ async function GameStateJSONClick() {
   }
   console.error("GameStateJSONClick 执行失败！！！");
 }
-
-/**
- * 获取游戏状态
- */
-async function getGameState(): Promise<GameStateJSON | null> {
-  for (let i = 0; i < 3; i++) {
-    const textarea = document.querySelector(
-        "div.modal-backdrop.game-state div.slot > textarea"
-    ) as HTMLTextAreaElement;
-    if (textarea) {
-      const value = JSON.parse(textarea.value);
-      await GameStateJSONClick();
-      return value;
-    }
-    await GameStateJSONClick();
-    await sleep(100);
-  }
-  console.error("getGameState 执行失败！！！");
-  return null;
-}
-
 
 
 /* **************************************************************************** */
@@ -134,6 +130,60 @@ async function sendMessage(
   return true;
 }
 
+declare global {
+  interface Window {
+    GameAssistant?: {
+      openChatWindow: typeof openChatWindow;
+      sendMessage: typeof sendMessage;
+      readGameState: typeof readGameState;
+    };
+  }
+
+  let unsafeWindow: Window
+
+  interface GameStateJSON {
+    bluffs: Array<unknown>;
+    fabled: [];
+    edition: { id: "snv" | "custom" };
+    roles: "" | Array<{ id: string }>;
+    players: Array<{
+      // 玩家头像链接
+      avatarUrl: string;
+      // 未读消息数量
+      countUnread: number;
+      // 玩家name，如果座位上没有玩家则这里将填充座位号
+      name: number | string;
+      // 玩家ID
+      id: string;
+      // 玩家是否死亡
+      isDead: boolean;
+      // 玩家是否为静音状态
+      isMute: boolean;
+      // 是否是开放式麦克风
+      isOpenMic: boolean;
+      // 是否正在说话
+      isTalking: boolean;
+      // 是否还有投票权
+      isVoteless: boolean;
+      // 人称代词（自定义昵称）
+      pronouns: string;
+      // 标记与提示（自定义添加）
+      reminders: [];
+      // 玩家当前角色
+      role: {};
+    }>;
+  }
+}
+
+if (unsafeWindow) {
+  unsafeWindow.GameAssistant = {openChatWindow, sendMessage, readGameState}
+} else {
+  window.GameAssistant = {openChatWindow, sendMessage, readGameState}
+}
+export {};
+
+
+
 // 休眠
 function sleep(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
@@ -152,43 +202,3 @@ function dispatchClickEvent(element: HTMLElement | null): Promise<boolean> {
     element.dispatchEvent(createEvent);
   });
 }
-
-declare global {
-  interface Window {
-    GameAssistant?: {
-      openChatWindow: typeof openChatWindow;
-      sendMessage: typeof sendMessage;
-      getGameState: typeof getGameState;
-    };
-  }
-
-  let unsafeWindow: Window
-
-  interface GameStateJSON {
-    bluffs: Array<unknown>;
-    fabled: [];
-    edition: { id: "snv" | "custom" };
-    roles: "" | Array<{ id: string }>;
-    players: Array<{
-      avatarUrl: string;
-      countUnread: number;
-      name: number | string;
-      id: string;
-      isDead: boolean;
-      isMute: boolean;
-      isOpenMic: boolean;
-      isTalking: boolean;
-      isVoteless: boolean;
-      pronouns: string;
-      reminders: [];
-      role: {};
-    }>;
-  }
-}
-
-if (unsafeWindow) {
-  unsafeWindow.GameAssistant = {openChatWindow, sendMessage, getGameState}
-} else {
-  window.GameAssistant = {openChatWindow, sendMessage, getGameState}
-}
-export {};

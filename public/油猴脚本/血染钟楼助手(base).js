@@ -7,9 +7,57 @@
 // @match        https://www.imdodo.com/tools/clocktower/
 // @icon         <$ICON$>
 // ==/UserScript==
+const pageState = ReactiveData({
+    gameState: undefined,
+    chatHtml: '',
+    isReadingState: false,
+});
+async function observeDom() {
+    let app = null;
+    for (let i = 0; i < 10; i++) {
+        app = document.querySelector('#app');
+        if (app)
+            break;
+        await sleep(200);
+    }
+    if (!app)
+        throw new Error('找不到 #app 的 div');
+    const appObserver = new MutationObserver(record => {
+        console.log('record = ', record);
+        readGameState();
+    });
+    appObserver.observe(app, { childList: true, subtree: true });
+}
+observeDom();
 /* **************************************************************************** */
 /* ****************************** 获取游戏状态JSON ****************************** */
 /* **************************************************************************** */
+
+let gameStateString = '';
+async function readGameState() {
+    if (pageState.isReadingState)
+        return;
+    pageState.isReadingState = true;
+    await sleep(100);
+    let textarea = null;
+    for (let i = 0; i < 3; i++) {
+        textarea = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
+        if (textarea)
+            break;
+        await GameStateJSONClick();
+        await sleep(100);
+    }
+    if (!textarea) {
+        console.error("getGameState 执行失败！！！");
+        return;
+    }
+    const str = textarea.value;
+    await GameStateJSONClick();
+    if (gameStateString !== str) {
+        pageState.gameState = JSON.parse(textarea.value);
+    }
+    pageState.isReadingState = false;
+}
 async function GameStateJSONClick() {
     for (let i = 0; i < 3; i++) {
         const liArray = document.querySelectorAll("div.menu > ul > li");
@@ -29,23 +77,6 @@ async function GameStateJSONClick() {
         await sleep(100);
     }
     console.error("GameStateJSONClick 执行失败！！！");
-}
-/**
- * 获取游戏状态
- */
-async function getGameState() {
-    for (let i = 0; i < 3; i++) {
-        const textarea = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
-        if (textarea) {
-            const value = JSON.parse(textarea.value);
-            await GameStateJSONClick();
-            return value;
-        }
-        await GameStateJSONClick();
-        await sleep(100);
-    }
-    console.error("getGameState 执行失败！！！");
-    return null;
 }
 /* **************************************************************************** */
 /* *************************** 向某个玩家发送聊天消息 **************************** */
@@ -116,6 +147,13 @@ async function sendMessage(userIndex, message = "", autoSend = false) {
     }
     return true;
 }
+if (unsafeWindow) {
+    unsafeWindow.GameAssistant = { openChatWindow, sendMessage, pageState };
+}
+else {
+    window.GameAssistant = { openChatWindow, sendMessage, pageState };
+}
+
 // 休眠
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -134,10 +172,56 @@ function dispatchClickEvent(element) {
         element.dispatchEvent(createEvent);
     });
 }
-if (unsafeWindow) {
-    unsafeWindow.GameAssistant = { openChatWindow, sendMessage, getGameState };
-}
-else {
-    window.GameAssistant = { openChatWindow, sendMessage, getGameState };
+function ReactiveData(record) {
+    // 监听函数集合
+    const listenerMap = new Map();
+    for (const key of Object.keys(record)) {
+        listenerMap.set(key, new Set());
+    }
+    // 浅拷贝 & 添加三个关键函数
+    const result = Object.assign({}, record);
+    result.observe = (key, callback) => {
+        const set = listenerMap.get(key);
+        if (set)
+            set.add(callback);
+        else
+            throw new Error('key is unknown');
+    };
+    result.unobserve = (key, callback) => {
+        const set = listenerMap.get(key);
+        if (set)
+            set.delete(callback);
+        else
+            throw new Error('key is unknown');
+    };
+    result.wait = (key, callback) => new Promise(resolve => {
+        if (callback(result[key]))
+            return resolve();
+        const set = listenerMap.get(key);
+        if (!set)
+            throw new Error('key is unknown');
+        const onceCallback = value => {
+            if (callback(value)) {
+                set.delete(onceCallback);
+                resolve();
+            }
+        };
+        set.add(onceCallback);
+    });
+    return new Proxy(result, {
+        set(target, p, value) {
+            if (target[p] === value)
+                return true;
+            if (p === 'observe' || p === 'unobserve' || p === 'wait')
+                return false;
+            const listeners = listenerMap.get(p);
+            if (!listeners)
+                return false;
+            target[p] = value;
+            for (let listener of listeners)
+                listener(value);
+            return true;
+        }
+    });
 }
 export {};
