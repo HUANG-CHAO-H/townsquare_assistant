@@ -22,7 +22,7 @@ rootDiv.style.width = '100%';
 document.body.appendChild(rootDiv);
 // 添加CSS样式文件
 insertCssLink('https://unpkg.com/@douyinfe/semi-ui@2.17.1/dist/css/semi.css');
-insertCssLink('https://unpkg.com/@douyinfe/semi-icons@latest/dist/css/semi-icons.css');
+insertCssLink('https://unpkg.com/@douyinfe/semi-icons@2.17.1/dist/css/semi-icons.css');
 
 ReactDOM.createRoot(rootDiv).render(
     <React.StrictMode><Home/></React.StrictMode>

@@ -388,6 +388,11 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@types/node@~18.7.13":
+  version "18.7.13"
+  resolved "https://registry.npmmirror.com/@types/node/-/node-18.7.13.tgz#23e6c5168333480d454243378b69e861ab5c011a"
+  integrity sha512-46yIhxSe5xEaJZXWdIBP7GU4HDTG8/eo0qd9atdiL+lFpA03y8KS+lkTN834TWJj5767GbWv4n/P6efyTFt1Dw==
+
 "@types/prop-types@*":
   version "15.7.5"
   resolved "https://registry.npmmirror.com/@types/prop-types/-/prop-types-15.7.5.tgz#5f19d2b85a98e9558036f6a3cacc8819420f05cf"
@@ -1028,6 +1033,11 @@ utility-types@^3.10.0:
   version "3.10.0"
   resolved "https://registry.npmmirror.com/utility-types/-/utility-types-3.10.0.tgz#ea4148f9a741015f05ed74fd615e1d20e6bed82b"
   integrity sha512-O11mqxmi7wMKCo6HKFt5AhO4BwY3VV68YU07tgxfz8zJTIxr4BpsezN49Ffwy9j3ZpwwJp4fkRwjRzq3uWE6Rg==
+
+vite-plugin-banner@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.npmmirror.com/vite-plugin-banner/-/vite-plugin-banner-0.4.0.tgz#0b0b149917edd889b5e2c13a032fd6892a7a9fc8"
+  integrity sha512-M78tCenhspTiNd3cGcXzG9Hw60Bcfh2w1tKHDy9GjVoiS5XtkAK2D7LjWumHiSX7vMnQ4DkMjcZ87Ola+qj0Hw==
 
 vite@^3.0.7:
   version "3.0.9"

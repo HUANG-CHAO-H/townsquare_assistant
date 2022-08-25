@@ -35,3 +35,19 @@ export function insertCssLink(url: string) {
     document.head.appendChild(styleLink);
     linkUrlSet.add(url);
 }
+
+const scriptUrlSet = new Set<string>();
+
+/**
+ * 向页面中插入JavaScript文件
+ * @param url   url连接
+ * @param type  script的type属性
+ */
+export function insertJsScript(url: string, type: string = "") {
+    if (scriptUrlSet.has(url)) return;
+    const script = document.createElement('script');
+    if (type) script.type = type;
+    script.src = url;
+    document.head.appendChild(script);
+    linkUrlSet.add(url);
+}
