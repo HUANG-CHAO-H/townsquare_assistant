@@ -1,76 +1,71 @@
-// ==UserScript==
-// @name         血染钟楼助手(base)
-// @namespace    http://tampermonkey.net/
-// @version      0.0.1
-// @description  向https://www.imdodo.com/tools/clocktower/页面注入一些JavaScript代码，来帮助说书人完成一些自动化操作，让说书人能够更加高效的工作
-// @author       huangchao.hello
-// @match        https://www.imdodo.com/tools/clocktower/
-// @icon         <$ICON$>
-// ==/UserScript==
+import {sleep, dispatchClickEvent} from "../utils";
 
-const button = document.createElement('button');
-button.innerHTML = '助手';
-button.style.position = 'absolute';
-button.style.top = '0';
-button.style.left = '70%';
-button.style.fontSize = 'large';
-button.style.backgroundColor = 'aqua';
-button.style.cursor = 'pointer';
-document.body.appendChild(button);
-export function onButtonClick(callback: () => void) {button.onclick = callback}
-
-
-/* **************************************************************************** */
-/* ****************************** 获取游戏状态JSON ****************************** */
-/* **************************************************************************** */
-
-export async function readGameState(): Promise<GameStateJSON | null> {
-  let textarea: HTMLTextAreaElement | null = null;
-  for (let i = 0; i < 3; i++) {
-    textarea = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
-    if (textarea) break;
-    await GameStateJSONClick();
-    await sleep(100);
-  }
-  if (!textarea) {
-    console.error("getGameState 执行失败！！！");
-    return null;
-  }
-  const stateValue = JSON.parse(textarea.value);
-  await GameStateJSONClick();
-  return stateValue;
+/**
+ * 获取当前游戏状态弹窗所在的div
+ */
+export function getGameStateJsonDiv(): HTMLDivElement | null {
+  return document.querySelector("div.modal-backdrop.game-state");
 }
-async function GameStateJSONClick() {
+
+/**
+ * 控制gameStateJsonDiv的开启关闭状态
+ * @param isOpen 是开启还是关闭
+ */
+export async function gameStateJsonDiv(isOpen: boolean = true): Promise<void> {
+  // 先判断状态与预期是否一致
+  let dialogDiv: HTMLDivElement | null = getGameStateJsonDiv();
+  if (isOpen) {
+    if (dialogDiv) return;
+  } else {
+    if (!dialogDiv) return;
+  }
+  // 第一步,获取游戏状态JSON按钮
+  let gameStateButton: HTMLLIElement | null = null;
   for (let i = 0; i < 3; i++) {
-    const liArray = document.querySelectorAll(
-        "div.menu > ul > li"
-    ) as NodeListOf<HTMLLIElement>;
-    if (!liArray || !liArray.length) return console.error("未捕获到li数组");
-    if (liArray.length === 9) {
-      if (liArray[4].innerHTML.search("file-code") > 0) {
-        await dispatchClickEvent(liArray[4]);
-        return;
-      }
+    const liArray = document.querySelectorAll("div.menu > ul > li") as NodeListOf<HTMLLIElement>;
+    if (!liArray || !liArray.length) throw new Error('未捕获到li数组');
+    if (liArray.length === 9 && liArray[4].innerText.includes('JSON')) {
+      gameStateButton = liArray[4];
+      break;
     }
     // help 按钮
-    const helpSvg = document.querySelector(
-        "div.menu > ul > li.tabs > svg.fa-question"
-    ) as HTMLElement;
-    if (!helpSvg) return console.error("未捕获到help按钮");
+    const helpSvg = document.querySelector("div.menu > ul > li.tabs > svg.fa-question") as HTMLElement;
+    if (!helpSvg) throw new Error('未捕获到help按钮');
     await dispatchClickEvent(helpSvg);
     await sleep(100);
   }
-  console.error("GameStateJSONClick 执行失败！！！");
+  // 第二步,点击切换状态
+  if (!gameStateButton) throw new Error('未捕捉到JSON按钮');
+  await dispatchClickEvent(gameStateButton);
+  // 第三步,检查弹窗是否符合预期
+  for (let i = 0; i < 3; i++) {
+    dialogDiv = getGameStateJsonDiv();
+    if (isOpen) {
+      if (dialogDiv) return;
+    } else {
+      if (!dialogDiv) return;
+    }
+    await sleep(50);
+  }
+  throw new Error('JSON状态弹窗切换失败');
 }
 
-
-/* **************************************************************************** */
-/* *************************** 向某个玩家发送聊天消息 **************************** */
-/* **************************************************************************** */
+export async function readGameState(parse: false): Promise<string>;
+export async function readGameState(parse: true): Promise<GameStateJSON>;
+export async function readGameState(parse = true): Promise<GameStateJSON | string> {
+  await gameStateJsonDiv(true);
+  const textarea: HTMLTextAreaElement | null = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
+  if (!textarea) throw new Error('捕获JSON展示区 textarea 元素失败');
+  if (parse) {
+    return JSON.parse(textarea.value);
+  } else {
+    return textarea.value;
+  }
+}
 
 /**
  * 打开某个玩家的聊天窗口
- * @param userIndex
+ * @param userIndex 玩家座位号
  */
 export async function openChatWindow(userIndex: number): Promise<boolean> {
   const allUser = document.querySelectorAll("#townsquare > ul.circle > li");
@@ -102,6 +97,22 @@ export async function openChatWindow(userIndex: number): Promise<boolean> {
   return true;
 }
 
+
+/**
+ * 读取聊天窗口所在的div
+ */
+export function getChatDetailDiv(): HTMLDivElement | null {
+  return document.querySelector("div.df-chat-detail");
+}
+
+
+/**
+ * 读取聊天框中的内容
+ */
+export async function readChatContent(): Promise<string> {
+  return '聊天框内容 逻辑待完善';
+}
+
 /**
  * 向某个玩家发送聊天消息
  * @param userIndex 玩家座位号
@@ -114,7 +125,7 @@ export async function sendMessage(
   autoSend: boolean = false
 ): Promise<boolean> {
   if (!await openChatWindow(userIndex)) return false;
-  const chatContainer = document.querySelector("div.df-chat-detail");
+  const chatContainer = getChatDetailDiv();
   if (!chatContainer) {
     console.error("打开聊天窗口失败");
     return false;
@@ -174,25 +185,4 @@ declare global {
       role: {};
     }>;
   }
-}
-
-
-
-// 休眠
-export function sleep(time: number) {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-// 触发click事件
-function dispatchClickEvent(element: HTMLElement | null): Promise<boolean> {
-  if (!element) return Promise.resolve(false);
-  const createEvent = new MouseEvent("click", {
-    bubbles: true,
-    cancelable: true,
-  });
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(false), 50);
-    element.addEventListener("click", () => resolve(true), { once: true });
-    element.dispatchEvent(createEvent);
-  });
 }
