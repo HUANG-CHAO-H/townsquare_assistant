@@ -8,6 +8,13 @@ export function getGameStateJsonDiv(): HTMLDivElement | null {
 }
 
 /**
+ * 读取聊天窗口所在的div
+ */
+export function getChatDetailDiv(): HTMLDivElement | null {
+  return document.querySelector("div.df-chat-detail");
+}
+
+/**
  * 控制gameStateJsonDiv的开启关闭状态
  * @param isOpen 是开启还是关闭
  */
@@ -96,15 +103,6 @@ export async function openChatWindow(userIndex: number): Promise<boolean> {
   }
   return true;
 }
-
-
-/**
- * 读取聊天窗口所在的div
- */
-export function getChatDetailDiv(): HTMLDivElement | null {
-  return document.querySelector("div.df-chat-detail");
-}
-
 
 /**
  * 读取聊天框中的内容
