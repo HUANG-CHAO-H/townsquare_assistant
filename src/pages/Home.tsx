@@ -1,12 +1,21 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Button, SideSheet, Row, Col} from "@douyinfe/semi-ui";
 import {PageStateProvider} from "../components/PageStateProvider";
 import {PlayerInfoTable} from "../components/PlayerInfoTable";
 import {ChatWindow} from "../components/ChatWindow";
+import {gameStateJsonDiv} from "../typescript/血染钟楼助手(base)";
 
 export function Home() {
     const [visible, setVisible] = useState(false);
     const changeVisible = useCallback(() => setVisible(v => !v), []);
+
+    useEffect(() => {
+        if (visible) {
+            gameStateJsonDiv(true);
+        } else {
+            gameStateJsonDiv(false);
+        }
+    }, [visible])
 
     return (<>
         <Button theme='solid' type='secondary' onClick={changeVisible} style={buttonStyle}>助手</Button>

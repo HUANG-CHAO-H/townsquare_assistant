@@ -8,7 +8,10 @@ export function sleep(time: number) {
 
 // 触发click事件
 export function dispatchClickEvent(element: HTMLElement | null): Promise<boolean> {
-    if (!element) return Promise.resolve(false);
+    if (!element) {
+        console.error('dispatchClickEvent Error: element 不存在');
+        return Promise.resolve(false);
+    }
     const createEvent = new MouseEvent("click", {
         bubbles: true,
         cancelable: true,

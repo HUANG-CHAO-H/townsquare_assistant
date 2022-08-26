@@ -118,8 +118,18 @@ export async function openChatWindow(userIndex: number): Promise<boolean> {
 /**
  * 读取聊天框中的内容
  */
-export async function readChatContent(): Promise<string> {
-  return '聊天框内容 逻辑待完善';
+export async function readChatContent(): Promise<{userName: string, content: string }> {
+  const result = {userName: '', content: ''};
+  const chatContainer = document.querySelector("div.df-chat-detail");
+  if (!chatContainer) {
+    console.error("readChatContent Error: 未捕捉到聊天窗口");
+    return result
+  }
+  let div: HTMLDivElement | null = chatContainer.querySelector('div.title-wrap');
+  result.userName = div?.innerText || '';
+  div = chatContainer.querySelector('div.df-scroll_wrap');
+  result.content = div?.innerHTML || '';
+  return result;
 }
 
 /**
@@ -166,7 +176,7 @@ declare global {
     bluffs: Array<unknown>;
     fabled: [];
     edition: { id: "snv" | "custom" };
-    roles: "" | Array<{ id: string }>;
+    roles: Array<{ id: string }>;
     players: Array<GamePlayerInfo>;
   }
 
@@ -192,9 +202,9 @@ declare global {
     // 人称代词（自定义昵称）
     pronouns: string;
     // 标记与提示（自定义添加）
-    reminders: [];
+    reminders: {role: string, name: string}[];
     // 玩家当前角色
-    role: {} | string;
+    role: GameRoleInfo | null;
   }
 
   interface GameRoleInfo {
