@@ -1,4 +1,8 @@
-import {sleep, dispatchClickEvent} from "../utils";
+import {sleep, dispatchClickEvent, loadRemoteJson} from "../utils";
+
+export function getRoleArray(): Promise<GameRoleInfo[]> {
+  return loadRemoteJson('https://raw.githubusercontent.com/bra1n/townsquare/develop/src/roles.json');
+}
 
 /**
  * 获取当前游戏状态弹窗所在的div
@@ -182,5 +186,33 @@ declare global {
       // 玩家当前角色
       role: {};
     }>;
+  }
+
+  interface GameRoleInfo {
+    // 角色ID
+    id: string,
+    // 角色名称
+    name: string,
+    // 所属阵营
+    team: "townsfolk" | "outsider" | "minion" | "demon" | "traveler",
+    // 能力
+    ability: string
+
+    // 适用游戏版本
+    edition?: "tb" | "bmr" | "snv" | "luf",
+    // 首夜顺序(默认为0，表示不参与排序)
+    firstNight?: number,
+    // 首夜唤醒并给予提醒
+    firstNightReminder?: "Show the character token of a Townsfolk in play. Point to two players, one of which is that character.",
+    // 非首夜的顺序(默认为0，表示不参与排序)
+    otherNight?: number,
+    // 非首夜唤醒并给予提醒
+    otherNightReminder: string,
+    //  reminder tokens, should be an empty array [] if none
+    reminders: [],
+    // global reminder tokens that will always be available, no matter if the character is assigned to a player or not
+    remindersGlobal?: []
+    // whether this token affects setup (orange leaf), like the Drunk or Baron
+    setup: boolean,
   }
 }
