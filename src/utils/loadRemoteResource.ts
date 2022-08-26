@@ -35,11 +35,15 @@ const jsonResource = new Map<string, unknown>();
  * 加载远程JSON资源
  * @param url
  */
-export async function loadRemoteJson(url: string): Promise<any> {
-    if (jsonResource.has(url)) return jsonResource.get(url);
+export async function loadRemoteJson<D>(url: string): Promise<D | undefined> {
+    let data = jsonResource.get(url);
+    if (data) return data as D;
     const response = await fetch(url);
-    if (response.status !== 200) throw new Error('加载 roles.json 失败');
-    const data = await response.json();
+    if (response.status !== 200) {
+        console.error('加载JSON资源失败');
+        return undefined;
+    }
+    data = await response.json();
     jsonResource.set(url, data);
-    return data;
+    return data as D;
 }

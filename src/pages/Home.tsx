@@ -1,7 +1,8 @@
 import React, {useCallback, useState} from "react";
-import {Button, SideSheet} from "@douyinfe/semi-ui";
+import {Button, SideSheet, Row, Col} from "@douyinfe/semi-ui";
 import {PageStateProvider} from "../components/PageStateProvider";
-import {ChatPage} from "./ChatPage";
+import {PlayerInfoTable} from "../components/PlayerInfoTable";
+import {ChatWindow} from "../components/ChatWindow";
 
 export function Home() {
     const [visible, setVisible] = useState(false);
@@ -9,11 +10,13 @@ export function Home() {
 
     return (<>
         <Button theme='solid' type='secondary' onClick={changeVisible} style={buttonStyle}>助手</Button>
-        <SideSheet closeOnEsc={true} placement='bottom' height='80%' headerStyle={headerStyle} visible={visible} onCancel={changeVisible} >
+        <SideSheet closeOnEsc={true} placement='bottom' height='80%'
+                   headerStyle={headerStyle} bodyStyle={bodyStyle} visible={visible} onCancel={changeVisible} >
             <PageStateProvider assistantOpen={visible}>
-                <p>This is the content of a basic sidesheet.</p>
-                <p>Here is more content...</p>
-                <ChatPage/>
+                <Row gutter={16} style={fullHeight}>
+                    <Col style={fullHeight} span={16}><PlayerInfoTable/></Col>
+                    <Col style={fullHeight} span={8}><ChatWindow/></Col>
+                </Row>
             </PageStateProvider>
         </SideSheet>
     </>);
@@ -27,4 +30,12 @@ const buttonStyle: React.CSSProperties = {
 
 const headerStyle: React.CSSProperties = {
     display: 'none'
+}
+
+const bodyStyle: React.CSSProperties = {
+    padding: '0'
+}
+
+const fullHeight: React.CSSProperties = {
+    height: '100%',
 }

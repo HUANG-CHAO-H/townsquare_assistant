@@ -13,6 +13,9 @@ const bannerString = `
 // @match        https://www.imdodo.com/tools/clocktower/
 // @require      https://unpkg.com/react@18/umd/react.production.min.js
 // @require      https://unpkg.com/react-dom@18/umd/react-dom.production.min.js
+// @require      https://unpkg.com/@douyinfe/semi-ui@2.17.1/dist/umd/semi-ui.min.js
+// @require      https://unpkg.com/@douyinfe/semi-icons@2.17.1/dist/umd/semi-icons.min.js
+// @require      https://unpkg.com/@douyinfe/semi-illustrations@2.15.0/dist/umd/semi-illustrations.min.js
 // @icon         <$ICON$>
 // ==/UserScript==
 `
@@ -32,12 +35,15 @@ export default defineConfig({
     },
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', "@douyinfe/semi-ui", "@douyinfe/semi-icons", "@douyinfe/SemiIllustrations"],
       output: {
         // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
         globals: {
           react: 'React',
-          'react-dom': 'ReactDOM'
+          'react-dom': 'ReactDOM',
+          "@douyinfe/semi-ui": "SemiUI",
+          "@douyinfe/semi-icons": "SemiIcons",
+          "@douyinfe/SemiIllustrations": "SemiIllustrations",
         }
       }
     }

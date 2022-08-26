@@ -1,7 +1,17 @@
 import {sleep, dispatchClickEvent, loadRemoteJson} from "../utils";
 
-export function getRoleArray(): Promise<GameRoleInfo[]> {
-  return loadRemoteJson('https://raw.githubusercontent.com/bra1n/townsquare/develop/src/roles.json');
+let roleRecord: Record<string, GameRoleInfo> | undefined;
+
+/**
+ * 获取游戏角色Map集合
+ */
+export async function getRoleRecord(): Promise<Record<string, GameRoleInfo> | undefined> {
+  if (roleRecord) return roleRecord;
+  const data = await loadRemoteJson<GameRoleInfo[]>('https://raw.githubusercontent.com/bra1n/townsquare/develop/src/roles.json');
+  if (!(data instanceof Array)) return undefined;
+  roleRecord = {};
+  for (const role of data) roleRecord[role.id] = role;
+  return roleRecord;
 }
 
 /**
@@ -61,17 +71,14 @@ export async function gameStateJsonDiv(isOpen: boolean = true): Promise<void> {
   throw new Error('JSON状态弹窗切换失败');
 }
 
-export async function readGameState(parse: false): Promise<string>;
-export async function readGameState(parse: true): Promise<GameStateJSON>;
-export async function readGameState(parse = true): Promise<GameStateJSON | string> {
+export async function readGameState(): Promise<string> {
   await gameStateJsonDiv(true);
   const textarea: HTMLTextAreaElement | null = document.querySelector("div.modal-backdrop.game-state div.slot > textarea");
-  if (!textarea) throw new Error('捕获JSON展示区 textarea 元素失败');
-  if (parse) {
-    return JSON.parse(textarea.value);
-  } else {
-    return textarea.value;
+  if (!textarea) {
+    console.error('捕获JSON展示区 textarea 元素失败')
+    return '';
   }
+  return textarea.value;
 }
 
 /**
@@ -160,32 +167,34 @@ declare global {
     fabled: [];
     edition: { id: "snv" | "custom" };
     roles: "" | Array<{ id: string }>;
-    players: Array<{
-      // 玩家头像链接
-      avatarUrl: string;
-      // 未读消息数量
-      countUnread: number;
-      // 玩家name，如果座位上没有玩家则这里将填充座位号
-      name: number | string;
-      // 玩家ID
-      id: string;
-      // 玩家是否死亡
-      isDead: boolean;
-      // 玩家是否为静音状态
-      isMute: boolean;
-      // 是否是开放式麦克风
-      isOpenMic: boolean;
-      // 是否正在说话
-      isTalking: boolean;
-      // 是否还有投票权
-      isVoteless: boolean;
-      // 人称代词（自定义昵称）
-      pronouns: string;
-      // 标记与提示（自定义添加）
-      reminders: [];
-      // 玩家当前角色
-      role: {};
-    }>;
+    players: Array<GamePlayerInfo>;
+  }
+
+  interface GamePlayerInfo {
+    // 玩家头像链接
+    avatarUrl: string;
+    // 未读消息数量
+    countUnread: number;
+    // 玩家name，如果座位上没有玩家则这里将填充座位号
+    name: number | string;
+    // 玩家ID
+    id: string;
+    // 玩家是否死亡
+    isDead: boolean;
+    // 玩家是否为静音状态
+    isMute: boolean;
+    // 是否是开放式麦克风
+    isOpenMic: boolean;
+    // 是否正在说话
+    isTalking: boolean;
+    // 是否还有投票权
+    isVoteless: boolean;
+    // 人称代词（自定义昵称）
+    pronouns: string;
+    // 标记与提示（自定义添加）
+    reminders: [];
+    // 玩家当前角色
+    role: {} | string;
   }
 
   interface GameRoleInfo {
