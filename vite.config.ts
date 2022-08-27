@@ -30,8 +30,8 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/main.tsx'),
       name: 'Assistant',
-      fileName: (format) => `血染钟楼(说书人)助手.${format}.js`,
-      formats: ['es', 'umd']
+      fileName: () => '血染钟楼(说书人)助手.js',
+      formats: ['umd']
     },
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖

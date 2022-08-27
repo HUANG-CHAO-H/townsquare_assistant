@@ -3,6 +3,8 @@ import {Avatar, Badge, Button, Table, Tooltip} from "@douyinfe/semi-ui";
 import { IconCustomerSupport } from '@douyinfe/semi-icons';
 import React from "react";
 import {openChatWindow} from "../typescript/血染钟楼助手(base)";
+import {PlayerAvatar} from "./PlayerAvatar";
+import {RoleAvatar} from "./RoleAvatar";
 
 export function PlayerInfoTable() {
     const pageState = usePageState();
@@ -27,20 +29,7 @@ const tableColumns: any[] = [
         dataIndex: 'name',
         width: 150,
         render(text: string, record: GamePlayerInfo) {
-            const baseAvatar = <Avatar size="small" src={record.avatarUrl} style={{ marginRight: 12 }}></Avatar>;
-            let avatar: React.ReactNode = baseAvatar;
-            let userName: React.ReactNode = text;
-            // 头像调整
-            if (record.countUnread) {
-                avatar = <Badge count={record.countUnread} type='primary'>{baseAvatar}</Badge>
-            } else if (record.isDead) {
-                avatar = <Badge count='死亡' type='danger'>{baseAvatar}</Badge>
-            }
-            // 名字调整
-            if (record.isDead) {
-                userName = <span style={deadStyle}>{text}</span>
-            }
-            return <div>{avatar}{text}</div>
+            return <PlayerAvatar playerInfo={record} size='small'/>
         }
     },
     {
@@ -49,13 +38,7 @@ const tableColumns: any[] = [
         render(text: string, record: GamePlayerInfo) {
             const role = record.role;
             if (!role) return null;
-            const url = `https://raw.githubusercontent.com/bra1n/townsquare/develop/src/assets/icons/${role.id}.png`
-            return (
-                <div>
-                    <Avatar size="small" src={url} style={{ marginRight: 12 }}></Avatar>
-                    {String(role.name)}
-                </div>
-            )
+            return <div><RoleAvatar roleId={role.id} style={{ marginRight: 12 }}/>{String(role.name)}</div>
         }
     },
     {
@@ -99,10 +82,9 @@ const tableColumns: any[] = [
                             </Tooltip>
                         )
                     } else {
-                        const url = `https://raw.githubusercontent.com/bra1n/townsquare/develop/src/assets/icons/${reminder.role}.png`
                         return (
                             <Tooltip content={reminder.name}>
-                                <Avatar size="small" src={url} alt="0"/>
+                                <RoleAvatar roleId={reminder.role}/>
                             </Tooltip>
                         )
                     }
@@ -120,10 +102,3 @@ const tableColumns: any[] = [
         }
     },
 ]
-
-const deadStyle: React.CSSProperties = {
-    // 中划线
-    textDecoration: "line-through",
-    // 灰色字体
-    color: 'gray'
-}

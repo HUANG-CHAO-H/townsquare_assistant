@@ -2,6 +2,8 @@ import {Layout, Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
 import {usePageState} from "./PageStateProvider";
 import React, {useRef, useState} from "react";
 import {sendMessage} from "../typescript/血染钟楼助手(base)";
+import {RoleAvatar} from "./RoleAvatar";
+import {PlayerAvatar} from "./PlayerAvatar";
 
 export function ChatWindow() {
     const pageState = usePageState();
@@ -31,8 +33,8 @@ export function ChatWindow() {
                 <Avatar color="red" shape="square" alt="0">
                     <span style={{fontSize: 'large'}}>{playerSeat + 1}</span>
                 </Avatar>
-                <Avatar src={playerInfo.avatarUrl} style={{ marginRight: 12 }}></Avatar>
-                {playerInfo.name}
+                <RoleAvatar roleId={playerInfo.role?.id || ''}/>
+                <PlayerAvatar playerInfo={playerInfo} containerStyle={{ display: 'inline-block' }}/>
             </div>
             <br/>
             <div>自定义功能列表</div>
