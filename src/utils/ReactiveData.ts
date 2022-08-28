@@ -1,12 +1,13 @@
+type Callback<V = unknown> = (value: V) => unknown
 export type IReactiveData<O> = {
     [K in keyof O]: O[K];
 } & {
     // 订阅变量值的变化
-    observe: <K extends keyof O>(key: K, callback: (value: O[K]) => void) => void
+    observe: <K extends keyof O>(key: K, callback: Callback<O[K]>) => void
     // 取消订阅
-    unobserve: <K extends keyof O>(key: K, callback: (value: O[K]) => void) => void
+    unobserve: <K extends keyof O>(key: K, callback: Callback<O[K]>) => void
     // 返回一个Promise,每次目标值变化时,都会调用传入的callback,当callback返回true时,Promise被解决
-    wait: <K extends keyof O>(key: K, callback: (value: O[K]) => boolean) => Promise<void>
+    wait: <K extends keyof O>(key: K, callback: (value: O[K]) => boolean, maxTime?: number) => Promise<void>
 }
 
 export function ReactiveData<O>(record: O): IReactiveData<O> {
@@ -27,7 +28,7 @@ export function ReactiveData<O>(record: O): IReactiveData<O> {
         if (set) set.delete(callback);
         else throw new Error('key is unknown');
     }
-    result.wait = (key, callback) => new Promise<void>(resolve => {
+    result.wait = (key, callback, maxTime) => new Promise<void>((resolve, reject) => {
         if (callback(result[key])) return resolve();
         const set = listenerMap.get(key);
         if (!set) throw new Error('key is unknown');
@@ -38,6 +39,7 @@ export function ReactiveData<O>(record: O): IReactiveData<O> {
             }
         }
         set.add(onceCallback);
+        if (maxTime) setTimeout(reject, maxTime, 'ReactiveData.wait Error: wait timeout');
     })
 
     return new Proxy(result, {

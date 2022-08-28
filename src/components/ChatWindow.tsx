@@ -1,58 +1,105 @@
-import {Layout, Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
-import {usePageState} from "./PageStateProvider";
-import React, {useRef, useState} from "react";
-import {sendMessage} from "../typescript/血染钟楼助手(base)";
+import React, {useEffect, useRef} from "react";
+import {Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
+import {globalContext} from "../typescript";
 import {RoleAvatar} from "./RoleAvatar";
 import {PlayerAvatar} from "./PlayerAvatar";
+import {useChatContext} from "../provider/ChatProvider";
 
 export function ChatWindow() {
-    const pageState = usePageState();
-    const [inputValue, setInputValue] = useState<string>('');
+    const chatContext = useChatContext();
+    // 聊天内容展示
     const divRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const callback = (nodes: NodeListOf<ChildNode> | null) => {
+            const div = divRef.current;
+            if (!div || !nodes) return;
+            const container: HTMLDivElement = div.firstChild as HTMLDivElement;
+            const oldLength = container.childNodes.length;
+            container.innerHTML = '';
+            container.append(...nodes);
+            if (oldLength !== container.childNodes.length) {   // 滚动轴修正
+                div.scrollTop = div.scrollHeight;
+            }
+        }
+        globalContext.observe('chatContent', callback);
+        return () => globalContext.unobserve('chatContent', callback);
+    }, [])
 
-    const onButtonClick = () => {
-        if (!inputValue) return;
-        sendMessage(playerSeat + 1, inputValue, true)
-            .then(() => {
-                setInputValue('');
-                setTimeout(() => {
-                    const div = divRef.current;
-                    if (div) div.scrollTop = div.scrollHeight;
-                }, 500);
-            });
-    }
-
-    if (!pageState?.gameState?.players) return null;
-    const playerSeat = pageState.gameState.players.findIndex(value => value.name === pageState.chatUser);
-    if (playerSeat < 0) return null;
-    const playerInfo = pageState.gameState.players[playerSeat];
-
+    if (!chatContext?.chatPlayer) return null;
+    const {chatPlayer, chatPlayerSeat} = chatContext;
     return (
-        <Layout style={{color: 'black', padding: '10px', height: '100%'}}>
+        <div style={containerStyle}>
             <div>
-                <Avatar color="red" shape="square" alt="0">
-                    <span style={{fontSize: 'large'}}>{playerSeat + 1}</span>
+                <Avatar color="light-blue" shape="square" alt="0">
+                    <span style={{fontSize: 'x-large'}}>{chatPlayerSeat}</span>
                 </Avatar>
-                <RoleAvatar roleId={playerInfo.role?.id || ''}/>
-                <PlayerAvatar playerInfo={playerInfo} containerStyle={{ display: 'inline-block' }}/>
+                <RoleAvatar roleId={chatPlayer.role?.id || ''} name={chatPlayer?.role?.name || ''}/>
+                <PlayerAvatar playerInfo={chatPlayer} containerStyle={{ display: 'inline-block' }}/>
             </div>
-            <br/>
-            <div>自定义功能列表</div>
-            <br/>
-            <div ref={divRef} style={contentStyle} dangerouslySetInnerHTML={{__html: pageState?.chatContent || ''}} />
+            <div style={{margin: '5px 0'}}>{customFunctions.map(Comp => <Comp size='small'/>)}</div>
+            <div ref={divRef} style={contentStyle}><div/></div>
             <br/>
             <Row gutter={16} type="flex" align="middle">
-                <Col span={20}><TextArea value={inputValue} onChange={setInputValue} onEnterPress={onButtonClick}/></Col>
-                <Col span={4}><Button block={true} onClick={onButtonClick}>发送</Button></Col>
+                <Col span={20}>
+                    <TextArea value={chatContext.chatContent} onChange={chatContext.setChatContent} onEnterPress={chatContext.dispatchSendMsg}/>
+                </Col>
+                <Col span={4}><Button block={true} onClick={chatContext.dispatchSendMsg}>发送</Button></Col>
             </Row>
-        </Layout>
+        </div>
     )
 }
 
+const containerStyle: React.CSSProperties = {
+    color: 'black',
+    padding: '10px',
+    height: '100%',
+    overflow: 'hidden'
+}
+
 const contentStyle: React.CSSProperties = {
-    height: '60%',
+    height: '400px',
     overflowX: 'auto',
     overflowY: 'scroll',
     borderStyle: "inset",
     borderWidth: '2px',
 }
+
+interface IButtonProps {
+    // 按钮尺寸
+    size?: 'large' | 'default' | 'small'
+    // 按钮style
+    style?: React.CSSProperties
+    // 按钮class样式
+    className?: string
+}
+
+// 自定义功能列表
+const customFunctions: Array<(props: IButtonProps) => JSX.Element> = [];
+// 生成首夜信息按钮
+customFunctions.push((props: IButtonProps) => {
+    const chatContext = useChatContext();
+    const onClick = () => {
+        if (!chatContext) return;
+        const content = chatContext.chatPlayer?.role?.firstNightReminder || '';
+        chatContext.setChatContent(content);
+    }
+    return (
+        <Button size={props.size} style={props.style} className={props.className} onClick={onClick}>
+            生成首夜信息
+        </Button>
+    );
+})
+// 生成非首夜信息按钮
+customFunctions.push((props: IButtonProps) => {
+    const chatContext = useChatContext();
+    const onClick = () => {
+        if (!chatContext) return;
+        const content = chatContext.chatPlayer?.role?.otherNightReminder || '';
+        chatContext.setChatContent(content);
+    }
+    return (
+        <Button size={props.size} style={props.style} className={props.className} onClick={onClick}>
+            生成非首夜信息
+        </Button>
+    );
+})

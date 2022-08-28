@@ -7,18 +7,13 @@ export function sleep(time: number) {
 }
 
 // 触发click事件
-export function dispatchClickEvent(element: HTMLElement | null): Promise<boolean> {
+export function dispatchClickEvent(element: HTMLElement | null): void {
     if (!element) {
         console.error('dispatchClickEvent Error: element 不存在');
-        return Promise.resolve(false);
+        return;
     }
-    const createEvent = new MouseEvent("click", {
+    element.dispatchEvent(new MouseEvent("click", {
         bubbles: true,
         cancelable: true,
-    });
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(false), 50);
-        element.addEventListener("click", () => resolve(true), { once: true });
-        element.dispatchEvent(createEvent);
-    });
+    }));
 }

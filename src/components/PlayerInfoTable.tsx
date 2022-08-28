@@ -1,15 +1,14 @@
-import {usePageState} from "./PageStateProvider";
-import {Avatar, Badge, Button, Table, Tooltip} from "@douyinfe/semi-ui";
-import { IconCustomerSupport } from '@douyinfe/semi-icons';
+import {Avatar, Button, Table, Tooltip} from "@douyinfe/semi-ui";
+import { IconComment } from '@douyinfe/semi-icons';
 import React from "react";
-import {openChatWindow} from "../typescript/血染钟楼助手(base)";
+import {openChatWindow} from "../typescript";
 import {PlayerAvatar} from "./PlayerAvatar";
 import {RoleAvatar} from "./RoleAvatar";
+import {useGameState} from "../provider/GameStateProvider";
 
 export function PlayerInfoTable() {
-    const pageState = usePageState();
-    const playerData = pageState?.gameState?.players || []
-    console.log(pageState);
+    const gameState = useGameState();
+    const playerData = gameState?.players || []
     return <Table bordered={true} columns={tableColumns} dataSource={playerData} pagination={false} />;
 }
 
@@ -20,6 +19,7 @@ const tableColumns: any[] = [
         title: '座位号',
         dataIndex: 'seatIndex',
         width: 50,
+        align: 'center',
         render(text: string, record: GamePlayerInfo, index: number) {
             return String(index + 1)
         }
@@ -38,12 +38,14 @@ const tableColumns: any[] = [
         render(text: string, record: GamePlayerInfo) {
             const role = record.role;
             if (!role) return null;
-            return <div><RoleAvatar roleId={role.id} style={{ marginRight: 12 }}/>{String(role.name)}</div>
+            const {id, name = ''} = role;
+            return <div><RoleAvatar roleId={id} name={name} style={{ marginRight: 12 }}/>{name}</div>
         }
     },
     {
         title: '首夜',
         width: 50,
+        align: 'center',
         render(text: string, record: GamePlayerInfo) {
             const role = record.role;
             if (role?.firstNight) {
@@ -57,6 +59,7 @@ const tableColumns: any[] = [
     {
         title: '非首夜',
         width: 50,
+        align: 'center',
         render(text: string, record: GamePlayerInfo) {
             const role = record.role;
             if (role?.otherNight) {
@@ -70,6 +73,7 @@ const tableColumns: any[] = [
     {
         title: '自定义标记',
         width: 200,
+        align: 'center',
         render(text: string, record: GamePlayerInfo) {
             const reminders = record.reminders;
             if (!reminders?.length) return null;
@@ -82,11 +86,8 @@ const tableColumns: any[] = [
                             </Tooltip>
                         )
                     } else {
-                        return (
-                            <Tooltip content={reminder.name}>
-                                <RoleAvatar roleId={reminder.role}/>
-                            </Tooltip>
-                        )
+                        console.log('reminder =', reminder);
+                        return <RoleAvatar roleId={reminder.role} name={reminder.name}/>
                     }
                 })
             }</>)
@@ -95,9 +96,10 @@ const tableColumns: any[] = [
     {
         title: '操作',
         width: 100,
+        align: 'center',
         render(text: string, record: GamePlayerInfo, index: number) {
             return (
-                <Button icon={<IconCustomerSupport style={{color:'#E91E63'}}/>} onClick={() => openChatWindow(index + 1)}/>
+                <Button icon={<IconComment style={{color:'#1abc9c'}}/>} onClick={() => openChatWindow(index + 1)}/>
             )
         }
     },
