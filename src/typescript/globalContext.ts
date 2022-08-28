@@ -141,7 +141,7 @@ declare global {
         otherNight?: number,
         // 非首夜唤醒并给予提醒
         otherNightReminder: string,
-        //  reminder tokens, should be an empty array [] if none
+        //  因为该角色的出现,而带来的额外自定义标记类型
         reminders: [],
         // global reminder tokens that will always be available, no matter if the character is assigned to a player or not
         remindersGlobal?: []
