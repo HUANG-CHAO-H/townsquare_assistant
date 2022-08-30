@@ -28,8 +28,8 @@ interface IGlobalContext {
 }
 
 export const globalContext = ReactiveData<IGlobalContext>({
-    rolesUrl: 'https://gitee.com/HCstar/townsquare_assistant/raw/master/static/roles.json',
-    editionsUrl: 'https://gitee.com/HCstar/townsquare_assistant/raw/master/static/editions.json',
+    rolesUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/roles.json',
+    editionsUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/editions.json',
     roles: {},
 
     gameStateString: '',
