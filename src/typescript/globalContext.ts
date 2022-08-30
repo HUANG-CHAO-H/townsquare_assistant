@@ -28,8 +28,8 @@ interface IGlobalContext {
 }
 
 export const globalContext = ReactiveData<IGlobalContext>({
-    rolesUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/dist/roles.json',
-    editionsUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/dist/editions.json',
+    rolesUrl: 'https://gitee.com/HCstar/townsquare_assistant/raw/master/static/roles.json',
+    editionsUrl: 'https://gitee.com/HCstar/townsquare_assistant/raw/master/static/editions.json',
     roles: {},
 
     gameStateString: '',
@@ -46,7 +46,12 @@ export const globalContext = ReactiveData<IGlobalContext>({
 globalContext.observe('rolesUrl', async url => {
     if (!url) return globalContext.roles = {};
     globalContext.roles = await loadRoles(url);
-})
+});
+// 关联更新 gameStateString 和 gameState
+globalContext.observe('gameStateString', tranGameState);
+// 关联更新 roles 和 gameState
+globalContext.observe('roles', tranGameState);
+
 function loadRoles(url: string): Promise<Record<string, GameRoleInfo>> {
     if (!url) return Promise.reject('url为空');
     return loadRemoteJson<GameRoleInfo[]>(url).then(data => {
@@ -57,10 +62,10 @@ function loadRoles(url: string): Promise<Record<string, GameRoleInfo>> {
     })
 }
 loadRoles(globalContext.rolesUrl).then(value => globalContext.roles = value)
-// 关联更新 gameStateString 和 gameState
-globalContext.observe('gameStateString', value => {
-    if (!value) globalContext.gameState = undefined;
-    const stateJson = JSON.parse(value);
+
+function tranGameState() {
+    if (!globalContext.gameStateString) globalContext.gameState = undefined;
+    const stateJson = JSON.parse(globalContext.gameStateString);
     stateJson.roles = stateJson.roles || [];
     const roleRecord = globalContext.roles || {};
     for (const player of stateJson.players) {
@@ -70,13 +75,7 @@ globalContext.observe('gameStateString', value => {
         } else player.role = null;
     }
     globalContext.gameState = stateJson;
-})
-
-
-
-
-
-
+}
 
 window.globalContext = globalContext;
 
@@ -136,7 +135,7 @@ declare global {
         // 首夜顺序(默认为0，表示不参与排序)
         firstNight?: number,
         // 首夜唤醒并给予提醒
-        firstNightReminder?: "Show the character token of a Townsfolk in play. Point to two players, one of which is that character.",
+        firstNightReminder?: string,
         // 非首夜的顺序(默认为0，表示不参与排序)
         otherNight?: number,
         // 非首夜唤醒并给予提醒
