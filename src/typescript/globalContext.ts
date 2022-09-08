@@ -110,7 +110,7 @@ declare global {
         isOpenMic: boolean;
         // 是否正在说话
         isTalking: boolean;
-        // 是否还有投票权
+        // 是否已失去投票权
         isVoteless: boolean;
         // 人称代词（自定义昵称）
         pronouns: string;

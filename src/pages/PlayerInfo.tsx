@@ -1,15 +1,28 @@
-import {Avatar, Button, Table, Tooltip} from "@douyinfe/semi-ui";
-import { IconComment } from '@douyinfe/semi-icons';
-import React from "react";
-import {openChatWindow} from "../typescript";
-import {PlayerAvatar} from "./PlayerAvatar";
-import {RoleAvatar} from "./RoleAvatar";
 import {useGameState} from "../provider/GameStateProvider";
+import {Avatar, Button, Table, Tooltip} from "@douyinfe/semi-ui";
+import {PlayerAvatar} from "../components/PlayerAvatar";
+import {RoleAvatar} from "../components/RoleAvatar";
+import {IconComment} from "@douyinfe/semi-icons";
+import {openChatWindow} from "../typescript";
+import React from "react";
 
-export function PlayerInfoTable() {
+const divStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box',
+    margin: 0,
+    padding: 0,
+    overflow: 'auto'
+}
+
+export function PlayerInfo() {
     const gameState = useGameState();
     const playerData = gameState?.players || []
-    return <Table bordered={true} columns={tableColumns} dataSource={playerData} pagination={false} />;
+    return (
+        <div style={divStyle}>
+            <Table bordered={true} columns={tableColumns} dataSource={playerData} pagination={false} />
+        </div>
+    );
 }
 
 // import type {ColumnProps} from "@douyinfe/semi-ui/table/interface";

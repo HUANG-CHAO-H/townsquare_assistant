@@ -1,12 +1,13 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, SideSheet, Row, Col} from "@douyinfe/semi-ui";
-import {PlayerInfoTable} from "../components/PlayerInfoTable";
-import {ChatWindow} from "../components/ChatWindow";
+import {ChatWindow} from "./ChatWindow";
 import {globalContext} from "../typescript";
 import {GameStateProvider} from "../provider/GameStateProvider";
 import {ChatProvider} from "../provider/ChatProvider";
+import {SizeProvider} from "../provider/SizeProvider";
+import {PlayerInfo} from "./PlayerInfo";
 
-export function Home() {
+export function AssistantIndex() {
     const [visible, setVisible] = useState(false);
     const changeVisible = useCallback(() => setVisible(v => !v), []);
 
@@ -33,8 +34,12 @@ export function Home() {
                            onCancel={changeVisible}
                 >
                     <Row gutter={16} style={fullHeight}>
-                        <Col style={fullHeight} span={16}><PlayerInfoTable/></Col>
-                        <Col style={fullHeight} span={8}><ChatWindow/></Col>
+                        <Col style={fullHeight} span={16}>
+                            <SizeProvider><PlayerInfo/></SizeProvider>
+                        </Col>
+                        <Col style={fullHeight} span={8}>
+                            <SizeProvider><ChatWindow/></SizeProvider>
+                        </Col>
                     </Row>
                 </SideSheet>
             </ChatProvider>
@@ -53,7 +58,8 @@ const headerStyle: React.CSSProperties = {
 }
 
 const bodyStyle: React.CSSProperties = {
-    padding: '0'
+    padding: 0,
+    overflow: "hidden",
 }
 
 const fullHeight: React.CSSProperties = {

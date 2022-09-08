@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {Home} from "./pages/Home";
+import {AssistantIndex} from "./pages/AssistantIndex";
 import {insertCssLink} from "./utils";
 
 // 插入DOM元素(根节点)
@@ -15,5 +15,5 @@ insertCssLink('https://unpkg.com/@douyinfe/semi-ui@2.17.1/dist/css/semi.css');
 insertCssLink('https://unpkg.com/@douyinfe/semi-icons@2.17.1/dist/css/semi-icons.css');
 
 ReactDOM.createRoot(rootDiv).render(
-    <React.StrictMode><Home/></React.StrictMode>
+    <React.StrictMode><AssistantIndex/></React.StrictMode>
 );
