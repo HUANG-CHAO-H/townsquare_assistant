@@ -3,7 +3,7 @@ import {Avatar, Button, Table, Tooltip} from "@douyinfe/semi-ui";
 import {PlayerAvatar} from "../components/PlayerAvatar";
 import {RoleAvatar} from "../components/RoleAvatar";
 import {IconComment} from "@douyinfe/semi-icons";
-import {openChatWindow} from "../typescript";
+import {openChatWindow} from "../script";
 import React from "react";
 import {ReminderAvatar} from "../components/ReminderAvatar";
 

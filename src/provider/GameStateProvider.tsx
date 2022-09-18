@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {globalContext} from "../typescript";
+import {globalContext} from "../script";
 
 
 const GameStateContext = React.createContext<GameStateJSON | undefined>(undefined)

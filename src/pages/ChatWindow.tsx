@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
-import {globalContext} from "../typescript";
+import {globalContext} from "../script";
 import {RoleAvatar} from "../components/RoleAvatar";
 import {PlayerAvatar} from "../components/PlayerAvatar";
 import {useChatContext} from "../provider/ChatProvider";

@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, SideSheet, Row, Col} from "@douyinfe/semi-ui";
 import {ChatWindow} from "./ChatWindow";
-import {globalContext} from "../typescript";
+import {globalContext} from "../script";
 import {GameStateProvider} from "../provider/GameStateProvider";
 import {ChatProvider} from "../provider/ChatProvider";
 import {SizeProvider} from "../provider/SizeProvider";

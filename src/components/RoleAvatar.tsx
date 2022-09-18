@@ -1,6 +1,6 @@
 import {Avatar, Tooltip, Tag} from "@douyinfe/semi-ui";
 import React, {useMemo} from "react";
-import {translateRoleTeam} from "../typescript";
+import {translateRoleTeam} from "../script";
 
 interface RoleAvatarProps {
     // 角色信息

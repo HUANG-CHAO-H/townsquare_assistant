@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
-import {clickChatButton, globalContext, writeChatContent} from "../typescript";
+import {clickChatButton, globalContext, writeChatContent} from "../script";
 import {sleep} from "../utils";
 import {useGameState} from "./GameStateProvider";
 
