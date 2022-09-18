@@ -148,3 +148,14 @@ declare global {
         setup: boolean,
     }
 }
+
+export function translateRoleTeam(team: GameRoleInfo['team']): string {
+    switch (team) {
+        case "townsfolk": return '村民';
+        case "outsider": return '外来者';
+        case "minion": return '爪牙';
+        case 'demon': return '恶魔';
+        case 'traveler': return '旅行者';
+        default: return '未知类型';
+    }
+}

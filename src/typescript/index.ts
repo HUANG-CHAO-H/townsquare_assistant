@@ -1,4 +1,4 @@
-export {globalContext} from './globalContext';
+export {globalContext, translateRoleTeam} from './globalContext';
 export * from './webPageAnalysis';
 
 

@@ -25,15 +25,16 @@ export function ChatWindow() {
         return () => globalContext.unobserve('chatContent', callback);
     }, [])
 
-    if (!chatContext?.chatPlayer) return null;
+    if (!chatContext) return null;
     const {chatPlayer, chatPlayerSeat} = chatContext;
+    if (!chatPlayer) return null;
     return (
         <div style={containerStyle}>
             <div>
                 <Avatar color="light-blue" shape="square" alt="0">
                     <span style={{fontSize: 'x-large'}}>{chatPlayerSeat}</span>
                 </Avatar>
-                <RoleAvatar roleId={chatPlayer.role?.id || ''} name={chatPlayer?.role?.name || ''}/>
+                {chatPlayer.role ? <RoleAvatar roleInfo={chatPlayer.role}/> : null}
                 <PlayerAvatar playerInfo={chatPlayer} containerStyle={{ display: 'inline-block' }}/>
             </div>
             <div style={{margin: '5px 0'}}>{customFunctions.map(Comp => <Comp size='small'/>)}</div>

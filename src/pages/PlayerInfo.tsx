@@ -5,6 +5,7 @@ import {RoleAvatar} from "../components/RoleAvatar";
 import {IconComment} from "@douyinfe/semi-icons";
 import {openChatWindow} from "../typescript";
 import React from "react";
+import {ReminderAvatar} from "../components/ReminderAvatar";
 
 const divStyle: React.CSSProperties = {
     width: '100%',
@@ -51,8 +52,7 @@ const tableColumns: any[] = [
         render(text: string, record: GamePlayerInfo) {
             const role = record.role;
             if (!role) return null;
-            const {id, name = ''} = role;
-            return <div><RoleAvatar roleId={id} name={name} style={{ marginRight: 12 }}/>{name}</div>
+            return <div><RoleAvatar roleInfo={role} style={{ marginRight: 12 }}/>{role.name}</div>
         }
     },
     {
@@ -100,7 +100,7 @@ const tableColumns: any[] = [
                         )
                     } else {
                         console.log('reminder =', reminder);
-                        return <RoleAvatar roleId={reminder.role} name={reminder.name}/>
+                        return <ReminderAvatar roleId={reminder.role} name={reminder.name}/>
                     }
                 })
             }</>)
