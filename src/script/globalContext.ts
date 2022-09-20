@@ -1,13 +1,15 @@
 import {loadRemoteJson, ReactiveData} from "../utils";
-import {formatGameRoleInfo, formatGameStateJSON} from "./townsquare";
+import {formatGameEditionInfo, formatGameRoleInfo, formatGameStateJSON} from "./townsquare";
 
 interface IGlobalContext {
     // roles.json文件地址
     rolesUrl: string,
-    // editions.json文件地址
-    editionsUrl: string,
     // 角色数据
     roles: Record<string, GameRoleInfo>,
+    // editions.json文件地址
+    editionsUrl: string,
+    // editions剧本数据
+    editions: Record<string, GameEditionInfo>
 
     // 游戏状态JSON的字符串形式
     gameStateString: string
@@ -30,8 +32,9 @@ interface IGlobalContext {
 
 export const globalContext = ReactiveData<IGlobalContext>({
     rolesUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/roles.json',
-    editionsUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/editions.json',
     roles: {},
+    editionsUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/editions.json',
+    editions: {},
 
     gameStateString: '',
     gameState: undefined,
@@ -58,6 +61,22 @@ function loadRoles(url: string): Promise<Record<string, GameRoleInfo>> {
     })
 }
 loadRoles(globalContext.rolesUrl).then(value => globalContext.roles = value);
+
+// 关联更新editionsUrl和editions
+globalContext.observe('editionsUrl', async url => {
+    if (!url) return globalContext.editions = {};
+    globalContext.editions = await loadEditions(url);
+});
+function loadEditions(url: string): Promise<Record<string, GameEditionInfo>> {
+    if (!url) return Promise.reject('url为空');
+    return loadRemoteJson<GameEditionInfo[]>(url).then(data => {
+        if (!(data instanceof Array)) return Promise.reject('加载roles数据失败');
+        const editionRecord: Record<string, GameEditionInfo> = {};
+        for (const edition of data) editionRecord[edition.id] = formatGameEditionInfo(edition);
+        return editionRecord;
+    })
+}
+loadEditions(globalContext.editionsUrl).then(value => globalContext.editions = value);
 
 // 关联更新 gameStateString 和 gameState
 globalContext.observe('gameStateString', gameStateString => {
