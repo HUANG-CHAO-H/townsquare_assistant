@@ -1,3 +1,5 @@
+import {HTMLAttributes, RefAttributes} from "react";
+
 export * from './ReactiveData';
 export * from './loadRemoteResource';
 
@@ -5,6 +7,8 @@ export * from './loadRemoteResource';
 export function sleep(time: number) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
+
+export function TypeCheck<T>(value: T): T {return value}
 
 // 触发click事件
 export function dispatchClickEvent(element: HTMLElement | null): void {
@@ -17,3 +21,5 @@ export function dispatchClickEvent(element: HTMLElement | null): void {
         cancelable: true,
     }));
 }
+
+export type ReactHTMLAttributes<T> = HTMLAttributes<T> & RefAttributes<T>

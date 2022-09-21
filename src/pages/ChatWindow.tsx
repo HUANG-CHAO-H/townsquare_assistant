@@ -1,6 +1,5 @@
 import React, {useEffect, useRef} from "react";
 import {Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
-import {globalContext} from "../script";
 import {RoleAvatar} from "../components/RoleAvatar";
 import {PlayerAvatar} from "../components/PlayerAvatar";
 import {useChatContext} from "../provider/ChatProvider";
@@ -10,20 +9,17 @@ export function ChatWindow() {
     // 聊天内容展示
     const divRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
-        const callback = (nodes: NodeListOf<ChildNode> | null) => {
-            const div = divRef.current;
-            if (!div || !nodes) return;
-            const container: HTMLDivElement = div.firstChild as HTMLDivElement;
-            const oldLength = container.childNodes.length;
-            container.innerHTML = '';
-            container.append(...nodes);
-            if (oldLength !== container.childNodes.length) {   // 滚动轴修正
-                div.scrollTop = div.scrollHeight;
-            }
+        const div = divRef.current;
+        if (!div) return;
+        const container: HTMLDivElement = div.firstChild as HTMLDivElement;
+        const oldLength = container.childNodes.length;
+        container.innerHTML = '';
+        if (!chatContext?.chatContent) return;
+        container.append(...chatContext.chatContent);
+        if (oldLength !== container.childNodes.length) {   // 滚动轴修正
+            div.scrollTop = div.scrollHeight;
         }
-        globalContext.observe('chatContent', callback);
-        return () => globalContext.unobserve('chatContent', callback);
-    }, [])
+    }, [chatContext?.chatContent])
 
     if (!chatContext) return null;
     const {chatPlayer, chatPlayerSeat} = chatContext;
@@ -34,8 +30,8 @@ export function ChatWindow() {
                 <Avatar color="light-blue" shape="square" alt="0">
                     <span style={{fontSize: 'x-large'}}>{chatPlayerSeat}</span>
                 </Avatar>
-                {chatPlayer.role ? <RoleAvatar roleInfo={chatPlayer.role}/> : null}
-                <PlayerAvatar playerInfo={chatPlayer} containerStyle={{ display: 'inline-block' }}/>
+                {chatContext.chatRole ? <RoleAvatar roleInfo={chatContext.chatRole}/> : null}
+                <PlayerAvatar playerInfo={chatPlayer}/>
             </div>
             <div style={{margin: '5px 0'}}>{customFunctions.map(Comp => <Comp size='small'/>)}</div>
             <div ref={divRef} style={contentStyle}><div/></div>
@@ -81,7 +77,7 @@ customFunctions.push((props: IButtonProps) => {
     const chatContext = useChatContext();
     const onClick = () => {
         if (!chatContext) return;
-        const content = chatContext.chatPlayer?.role?.firstNightReminder || '';
+        const content = chatContext.chatRole?.firstNightReminder || '';
         chatContext.setChatContent(content);
     }
     return (
@@ -95,7 +91,7 @@ customFunctions.push((props: IButtonProps) => {
     const chatContext = useChatContext();
     const onClick = () => {
         if (!chatContext) return;
-        const content = chatContext.chatPlayer?.role?.otherNightReminder || '';
+        const content = chatContext.chatRole?.otherNightReminder || '';
         chatContext.setChatContent(content);
     }
     return (

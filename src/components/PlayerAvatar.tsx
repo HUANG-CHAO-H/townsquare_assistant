@@ -1,31 +1,49 @@
-import {Avatar, Badge} from "@douyinfe/semi-ui";
 import React from "react";
+import {Avatar, Badge, Card, Tag, Descriptions} from "@douyinfe/semi-ui";
+import {ReactHTMLAttributes} from "../utils";
+import {AvatarCard} from "./AvatarCard";
 
 interface PlayerAvatarProps {
     playerInfo: GamePlayerInfo
-    size?: 'small' | 'large'
-    avatarStyle?: React.CSSProperties
-    containerStyle?: React.CSSProperties
+    // 尺寸，大小
+    size?: 'small' | 'medium' | 'large'
+    // 是否展示名称
+    showName?: boolean
+    // 是否展示详情页卡片（默认展示）
+    showDetailCard?: boolean
+    // 给外层容器传递的额外属性
+    divContainerAttr?: ReactHTMLAttributes<HTMLDivElement>
 }
-
-export function PlayerAvatar(props: PlayerAvatarProps) {
-    const {playerInfo: info, size, avatarStyle, containerStyle} = props;
-
-    const baseAvatar = <Avatar size={size || "small"} src={info.avatarUrl} style={avatarStyle || { marginRight: 12 }}></Avatar>;
-    let avatar: React.ReactNode = baseAvatar;
-    let userName: React.ReactNode = info.name;
-    // 头像调整
-    if (info.countUnread) {
-        avatar = <Badge count={info.countUnread} type='primary'>{baseAvatar}</Badge>
-    } else if (info.isDead) {
-        avatar = <Badge count='死亡' type='danger'>{baseAvatar}</Badge>
+export const PlayerAvatar = React.memo<PlayerAvatarProps>(props => {
+    const {
+        playerInfo,
+        size = 'small',
+        showName = true,
+        showDetailCard = true,
+        divContainerAttr,
+    } = props;
+    // 生成头像内容
+    let playAvatar = <Avatar size={size} src={playerInfo.avatarUrl}/>;
+    if (playerInfo.countUnread) {
+        playAvatar = <Badge count={playerInfo.countUnread} type={'primary'}>{playAvatar}</Badge>
+    } else if (playerInfo.isDead) {
+        playAvatar = <Badge count={'死亡'} type={'danger'}>{playAvatar}</Badge>
     }
-    // 名字调整
-    if (info.isDead) {
-        userName = <span style={deadStyle}>{info.name}</span>
-    }
-    return <div style={containerStyle}>{avatar}{userName}</div>
-}
+    // 生成label内容
+    const playerName = showName ? (
+        <div style={{fontSize: size, paddingLeft: '5px'}}>
+            <span style={playerInfo.isDead ? deadStyle : undefined}>{playerInfo.name}</span>
+        </div>
+    ) : null;
+    return (
+        <AvatarCard
+            avatar={playAvatar}
+            label={playerName}
+            divContainerAttr={divContainerAttr}
+            popover={showDetailCard ? <PlayerDetailCard player={playerInfo}/> : null}
+        />
+    )
+})
 
 const deadStyle: React.CSSProperties = {
     // 中划线
@@ -33,3 +51,35 @@ const deadStyle: React.CSSProperties = {
     // 灰色字体
     color: 'gray'
 }
+
+const PlayerDetailCard = React.memo<{player: GamePlayerInfo}>(props => {
+    const playerInfo = props.player;
+    const descriptionData = [
+        { key: '用户ID', value: playerInfo.id },
+        { key: 'username', value: playerInfo.name },
+        { key: '自定义别称', value: playerInfo.pronouns },
+        { key: '存活状态', value: playerInfo.isDead ? '死亡' : '存活'},
+        { key: '是否有投票权', value: playerInfo.isVoteless ? '有' : '无'},
+        {
+            key: '自定义标记',
+            value: playerInfo.reminders.map(
+                value => (<Tag style={{marginRight: 5, marginBottom: 5}} color={'blue'}>{value.name}</Tag>)
+            )},
+    ]
+    return (
+        <Card
+            bordered={false}
+            headerLine={true}
+            style={{ width: 250 }}
+            headerStyle={{padding: '10px 20px'}}
+            title={
+                <div style={{display: 'flex', justifyContent: 'space-between' , alignItems: 'center'}}>
+                    <span style={{color: 'black', fontSize: 'x-large', fontWeight: '400'}}>{playerInfo.name}</span>
+                    <Avatar size={'small'} src={playerInfo.avatarUrl}/>
+                </div>
+            }
+        >
+            <Descriptions data={descriptionData} />
+        </Card>
+    )
+})

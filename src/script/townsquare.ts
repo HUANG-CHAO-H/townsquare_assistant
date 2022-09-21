@@ -1,3 +1,9 @@
+export const RolesUrl = 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/roles.json';
+export const EditionsUrl = 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/editions.json';
+export function getIconUrl(iconId: string, type = 'png'): string {
+    return `https://raw.githubusercontent.com/bra1n/townsquare/develop/src/assets/icons/${iconId}.${type}`;
+}
+
 declare global {
     interface GameStateJSON {
         // 当前剧本ID
@@ -89,7 +95,7 @@ declare global {
 // RoleTeam值的翻译与转化
 export function translateRoleTeam(team: GameRoleInfo['team'], target: 'CN'): string
 export function translateRoleTeam(team: GameRoleInfo['team'], target: 'number'): number
-export function translateRoleTeam(team: GameRoleInfo['team'], target: 'CN' | 'number' = 'CN'): string | number {
+export function translateRoleTeam(team: GameRoleInfo['team'], target: 'CN' | 'number'): string | number {
     if (target === 'CN') {
         switch (team) {
             case "townsfolk": return '村民';

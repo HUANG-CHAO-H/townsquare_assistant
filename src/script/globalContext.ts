@@ -1,5 +1,5 @@
 import {loadRemoteJson, ReactiveData} from "../utils";
-import {formatGameEditionInfo, formatGameRoleInfo, formatGameStateJSON} from "./townsquare";
+import {EditionsUrl, formatGameEditionInfo, formatGameRoleInfo, formatGameStateJSON, RolesUrl} from "./townsquare";
 
 interface IGlobalContext {
     // roles.json文件地址
@@ -31,9 +31,9 @@ interface IGlobalContext {
 }
 
 export const globalContext = ReactiveData<IGlobalContext>({
-    rolesUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/roles.json',
+    rolesUrl: '',
     roles: {},
-    editionsUrl: 'https://raw.githubusercontent.com/HUANG-CHAO-H/townsquare_assistant/master/static/editions.json',
+    editionsUrl: '',
     editions: {},
 
     gameStateString: '',
@@ -60,7 +60,6 @@ function loadRoles(url: string): Promise<Record<string, GameRoleInfo>> {
         return roleRecord;
     })
 }
-loadRoles(globalContext.rolesUrl).then(value => globalContext.roles = value);
 
 // 关联更新editionsUrl和editions
 globalContext.observe('editionsUrl', async url => {
@@ -76,10 +75,12 @@ function loadEditions(url: string): Promise<Record<string, GameEditionInfo>> {
         return editionRecord;
     })
 }
-loadEditions(globalContext.editionsUrl).then(value => globalContext.editions = value);
 
 // 关联更新 gameStateString 和 gameState
 globalContext.observe('gameStateString', gameStateString => {
     if (!gameStateString) globalContext.gameState = undefined;
     globalContext.gameState = formatGameStateJSON(gameStateString);
 });
+
+globalContext.rolesUrl = RolesUrl;
+globalContext.editionsUrl = EditionsUrl;

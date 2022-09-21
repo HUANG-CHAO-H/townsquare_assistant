@@ -12,7 +12,7 @@ export interface IEditionContext {
 const GameEditionContext = React.createContext<IEditionContext | undefined>(undefined)
 export function useEditionState() {return useContext(GameEditionContext)}
 
-export function RoleProvider(props: {children?: React.ReactNode}) {
+export function GameEditionProvider(props: {children?: React.ReactNode}) {
     const[allEditions, setAllEditions] = useState<IEditionContext['allEditions']>({});
     const [currentEdition, setEdition] = useState<IEditionContext['currentEdition']>();
     useEffect(() => {
@@ -33,6 +33,6 @@ export function RoleProvider(props: {children?: React.ReactNode}) {
     const contextValue = useMemo(() => ({
         allEditions,
         currentEdition
-    }), [allEditions, currentEdition])
+    }), [allEditions, currentEdition]);
     return <GameEditionContext.Provider value={contextValue}>{props.children}</GameEditionContext.Provider>
 }

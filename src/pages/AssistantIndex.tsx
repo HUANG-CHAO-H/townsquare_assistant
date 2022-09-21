@@ -6,6 +6,8 @@ import {GameStateProvider} from "../provider/GameStateProvider";
 import {ChatProvider} from "../provider/ChatProvider";
 import {SizeProvider} from "../provider/SizeProvider";
 import {PlayerInfo} from "./PlayerInfo";
+import {GameEditionProvider} from "../provider/GameEditionProvider";
+import {GameRoleProvider} from "../provider/GameRoleProvider";
 
 export function AssistantIndex() {
     const [visible, setVisible] = useState(false);
@@ -24,25 +26,29 @@ export function AssistantIndex() {
     return (<>
         <Button theme='solid' type='secondary' onClick={changeVisible} style={buttonStyle}>助手</Button>
         <GameStateProvider>
-            <ChatProvider>
-                <SideSheet closeOnEsc={true}
-                           placement='bottom'
-                           height='80%'
-                           headerStyle={headerStyle}
-                           bodyStyle={bodyStyle}
-                           visible={visible}
-                           onCancel={changeVisible}
-                >
-                    <Row gutter={16} style={fullHeight}>
-                        <Col style={fullHeight} span={16}>
-                            <SizeProvider><PlayerInfo/></SizeProvider>
-                        </Col>
-                        <Col style={fullHeight} span={8}>
-                            <SizeProvider><ChatWindow/></SizeProvider>
-                        </Col>
-                    </Row>
-                </SideSheet>
-            </ChatProvider>
+            <GameEditionProvider>
+                <GameRoleProvider>
+                    <ChatProvider>
+                        <SideSheet closeOnEsc={true}
+                                   placement='bottom'
+                                   height='80%'
+                                   headerStyle={headerStyle}
+                                   bodyStyle={bodyStyle}
+                                   visible={visible}
+                                   onCancel={changeVisible}
+                        >
+                            <Row gutter={16} style={fullHeight}>
+                                <Col style={fullHeight} span={16}>
+                                    <SizeProvider><PlayerInfo/></SizeProvider>
+                                </Col>
+                                <Col style={fullHeight} span={8}>
+                                    <SizeProvider><ChatWindow/></SizeProvider>
+                                </Col>
+                            </Row>
+                        </SideSheet>
+                    </ChatProvider>
+                </GameRoleProvider>
+            </GameEditionProvider>
         </GameStateProvider>
     </>);
 }

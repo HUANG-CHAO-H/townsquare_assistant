@@ -4,8 +4,9 @@ import {PlayerAvatar} from "../components/PlayerAvatar";
 import {RoleAvatar} from "../components/RoleAvatar";
 import {IconComment} from "@douyinfe/semi-icons";
 import {openChatWindow} from "../script";
-import React from "react";
+import React, {useMemo} from "react";
 import {ReminderAvatar} from "../components/ReminderAvatar";
+import {useRoleState} from "../provider/GameRoleProvider";
 
 const divStyle: React.CSSProperties = {
     width: '100%',
@@ -16,12 +17,24 @@ const divStyle: React.CSSProperties = {
     overflow: 'auto'
 }
 
+interface ITableRowData {
+    player: GamePlayerInfo;
+    role: GameRoleInfo | undefined;
+}
+
 export function PlayerInfo() {
     const gameState = useGameState();
-    const playerData = gameState?.players || []
+    const roleState = useRoleState();
+
+    const tableData = useMemo<ITableRowData[]>(() => {
+        const playerData = gameState?.players || [];
+        const roleData = roleState?.currentRoles || {};
+        return playerData.map(player => ({player, role: roleData[player.role]}));
+    }, [gameState?.players, roleState?.currentRoles])
+
     return (
         <div style={divStyle}>
-            <Table bordered={true} columns={tableColumns} dataSource={playerData} pagination={false} />
+            <Table bordered={true} columns={tableColumns} dataSource={tableData} pagination={false} />
         </div>
     );
 }
@@ -42,24 +55,24 @@ const tableColumns: any[] = [
         title: '玩家',
         dataIndex: 'name',
         width: 150,
-        render(text: string, record: GamePlayerInfo) {
-            return <PlayerAvatar playerInfo={record} size='small'/>
+        render(text: string, record: ITableRowData) {
+            return <PlayerAvatar playerInfo={record.player} size='small'/>
         }
     },
     {
         title: '角色',
         width: 150,
-        render(text: string, record: GamePlayerInfo) {
+        render(text: string, record: ITableRowData) {
             const role = record.role;
             if (!role) return null;
-            return <div><RoleAvatar roleInfo={role} style={{ marginRight: 12 }}/>{role.name}</div>
+            return <RoleAvatar roleInfo={role}/>
         }
     },
     {
         title: '首夜',
         width: 50,
         align: 'center',
-        render(text: string, record: GamePlayerInfo) {
+        render(text: string, record: ITableRowData) {
             const role = record.role;
             if (role?.firstNight) {
                 return <Tooltip content={role.firstNightReminder || ''}>
@@ -73,7 +86,7 @@ const tableColumns: any[] = [
         title: '非首夜',
         width: 50,
         align: 'center',
-        render(text: string, record: GamePlayerInfo) {
+        render(text: string, record: ITableRowData) {
             const role = record.role;
             if (role?.otherNight) {
                 return <Tooltip content={role.otherNightReminder || ''}>
@@ -87,8 +100,8 @@ const tableColumns: any[] = [
         title: '自定义标记',
         width: 200,
         align: 'center',
-        render(text: string, record: GamePlayerInfo) {
-            const reminders = record.reminders;
+        render(text: string, record: ITableRowData) {
+            const reminders = record.player.reminders;
             if (!reminders?.length) return null;
             return (<>{
                 reminders.map(reminder => {
@@ -110,7 +123,7 @@ const tableColumns: any[] = [
         title: '操作',
         width: 100,
         align: 'center',
-        render(text: string, record: GamePlayerInfo, index: number) {
+        render(text: string, record: ITableRowData, index: number) {
             return (
                 <Button icon={<IconComment style={{color:'#1abc9c'}}/>} onClick={() => openChatWindow(index + 1)}/>
             )

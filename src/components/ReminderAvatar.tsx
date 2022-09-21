@@ -1,5 +1,6 @@
 import {Avatar, Tooltip} from "@douyinfe/semi-ui";
-import React, {useMemo} from "react";
+import React from "react";
+import {getIconUrl} from "../script";
 
 interface ReminderAvatarProps {
     roleId: string
@@ -10,6 +11,6 @@ interface ReminderAvatarProps {
 
 export function ReminderAvatar(props: ReminderAvatarProps) {
     const {roleId, name, size, style} = props;
-    const url = `https://raw.githubusercontent.com/bra1n/townsquare/develop/src/assets/icons/${roleId}.png`;
+    const url = getIconUrl(roleId);
     return <Tooltip content={name}><Avatar size={size} src={url} style={style}></Avatar></Tooltip>
 }
