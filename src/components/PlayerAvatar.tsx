@@ -27,7 +27,7 @@ export const PlayerAvatar = React.memo<PlayerAvatarProps>(props => {
     if (playerInfo.countUnread) {
         playAvatar = <Badge count={playerInfo.countUnread} type={'primary'}>{playAvatar}</Badge>
     } else if (playerInfo.isDead) {
-        playAvatar = <Badge count={'死亡'} type={'danger'}>{playAvatar}</Badge>
+        playAvatar = <Badge count={'死'} type={'danger'}>{playAvatar}</Badge>
     }
     // 生成label内容
     const playerName = showName ? (
@@ -59,7 +59,7 @@ const PlayerDetailCard = React.memo<{player: GamePlayerInfo}>(props => {
         { key: 'username', value: playerInfo.name },
         { key: '自定义别称', value: playerInfo.pronouns },
         { key: '存活状态', value: playerInfo.isDead ? '死亡' : '存活'},
-        { key: '是否有投票权', value: playerInfo.isVoteless ? '有' : '无'},
+        { key: '是否有投票权', value: playerInfo.isVoteless ? '无' : '有'},
         {
             key: '自定义标记',
             value: playerInfo.reminders.map(

@@ -30,7 +30,7 @@ export function ChatWindow() {
                 <Avatar color="light-blue" shape="square" alt="0">
                     <span style={{fontSize: 'x-large'}}>{chatPlayerSeat}</span>
                 </Avatar>
-                {chatContext.chatRole ? <RoleAvatar roleInfo={chatContext.chatRole}/> : null}
+                {chatContext.chatRole ? <RoleAvatar roleInfo={chatContext.chatRole} showName={false}/> : null}
                 <PlayerAvatar playerInfo={chatPlayer}/>
             </div>
             <div style={{margin: '5px 0'}}>{customFunctions.map(Comp => <Comp size='small'/>)}</div>
