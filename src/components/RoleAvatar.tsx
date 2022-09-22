@@ -69,9 +69,9 @@ function getRoleTeamColor(team: GameRoleInfo['team']): TagColor {
     switch (translateRoleTeam(team, 'number')) {
         case 0: return 'blue';
         case 1: return 'light-blue';
-        case 2: return 'green';
-        case 3: return 'orange';
-        case 4: return 'red';
+        case 2: return 'orange';
+        case 3: return 'red';
+        case 4: return 'green';
         default: return 'grey';
     }
 }

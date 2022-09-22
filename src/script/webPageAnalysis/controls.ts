@@ -8,6 +8,7 @@ import {
     getSettingHelp,
     getSettingJSON, getSettingUl
 } from "./getDomElement";
+import React from "react";
 
 // 打开游戏状态JSON对话框
 export function openGameStateDialog() {return gameStateJsonDiv(true)}
@@ -60,12 +61,19 @@ export function readChatContent(chatContainer = getChatDetailDiv()): NodeListOf<
     if (!chatContainer) return null;
     return getChatContentDiv(chatContainer).cloneNode(true).childNodes;
 }
+
+// 读取聊天输入框中的内容
+export function readChatInput(chatContainer = getChatDetailDiv()): string | false {
+    if (!chatContainer) return false;
+    const chatInputDiv = getChatInputDiv(chatContainer);
+    return chatInputDiv.innerText;
+}
 /**
- * 向聊天框中写入聊天消息
+ * 向聊天输入框中写入聊天消息
  * @param message   消息内容
  * @param chatContainer
  */
-export function writeChatContent(message: string = "", chatContainer = getChatDetailDiv()): boolean {
+export function writeChatInput(message: string = "", chatContainer = getChatDetailDiv()): boolean {
     if (!chatContainer) return false;
     const chatInputDiv = getChatInputDiv(chatContainer);
     chatInputDiv.innerHTML = message;
@@ -74,6 +82,10 @@ export function writeChatContent(message: string = "", chatContainer = getChatDe
     return true;
 }
 
+/**
+ * 触发发送按钮的click事件
+ * @param chatContainer
+ */
 export function clickChatButton(chatContainer = getChatDetailDiv()) {
     if (!chatContainer) return;
     const chatButton = getChatSendButton(chatContainer);

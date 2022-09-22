@@ -3,6 +3,8 @@ import {HTMLAttributes, RefAttributes} from "react";
 export * from './ReactiveData';
 export * from './loadRemoteResource';
 
+export type ReactHTMLAttributes<T> = HTMLAttributes<T> & RefAttributes<T>
+
 // 休眠
 export function sleep(time: number) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -22,4 +24,9 @@ export function dispatchClickEvent(element: HTMLElement | null): void {
     }));
 }
 
-export type ReactHTMLAttributes<T> = HTMLAttributes<T> & RefAttributes<T>
+/**
+ * 判断当前环境是否是开发环境
+ */
+export function isDevelopment(): boolean {
+    return import.meta.env.DEV || false;
+}

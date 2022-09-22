@@ -1,11 +1,15 @@
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
 import {RoleAvatar} from "../components/RoleAvatar";
 import {PlayerAvatar} from "../components/PlayerAvatar";
 import {useChatContext} from "../provider/ChatProvider";
+import {ReactiveData, sleep} from "../utils";
+import {globalContext} from "../script";
 
 export function ChatWindow() {
     const chatContext = useChatContext();
+    const [chatInput, setChatInput] = useState<string>('');
+    __setChatInput = setChatInput;
     // 聊天内容展示
     const divRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -24,9 +28,14 @@ export function ChatWindow() {
     if (!chatContext) return null;
     const {chatPlayer, chatPlayerSeat} = chatContext;
     if (!chatPlayer) return null;
+    const onClickButton = () => {
+        if (!chatInput) return;
+        globalContext.chatInput = chatInput;
+        sleep(50).then(chatContext.dispatchSendMsg).then(() => setChatInput(''));
+    }
     return (
         <div style={containerStyle}>
-            <div>
+            <div style={{display: 'flex'}}>
                 <Avatar color="light-blue" shape="square" alt="0">
                     <span style={{fontSize: 'x-large'}}>{chatPlayerSeat}</span>
                 </Avatar>
@@ -35,30 +44,38 @@ export function ChatWindow() {
             </div>
             <div style={{margin: '5px 0'}}>{customFunctions.map(Comp => <Comp size='small'/>)}</div>
             <div ref={divRef} style={contentStyle}><div/></div>
-            <br/>
             <Row gutter={16} type="flex" align="middle">
                 <Col span={20}>
-                    <TextArea value={chatContext.chatContent} onChange={chatContext.setChatContent} onEnterPress={chatContext.dispatchSendMsg}/>
+                    <TextArea value={chatInput} onChange={setChatInput} onEnterPress={onClickButton}/>
                 </Col>
-                <Col span={4}><Button block={true} onClick={chatContext.dispatchSendMsg}>发送</Button></Col>
+                <Col span={4}><Button block={true} onClick={onClickButton}>发送</Button></Col>
             </Row>
         </div>
     )
 }
 
+let __setChatInput: (value: string) => void;
+function setInputValue(value: string) {
+    __setChatInput?.(value);
+}
+
 const containerStyle: React.CSSProperties = {
     color: 'black',
-    padding: '10px',
+    padding: '10px 0',
     height: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    display: "flex",
+    flexDirection: 'column'
 }
 
 const contentStyle: React.CSSProperties = {
-    height: '400px',
     overflowX: 'auto',
     overflowY: 'scroll',
     borderStyle: "inset",
     borderWidth: '2px',
+    flexGrow: 1,
+    flexShrink: 1,
+    marginBottom: 5,
 }
 
 interface IButtonProps {
@@ -78,7 +95,7 @@ customFunctions.push((props: IButtonProps) => {
     const onClick = () => {
         if (!chatContext) return;
         const content = chatContext.chatRole?.firstNightReminder || '';
-        chatContext.setChatContent(content);
+        setInputValue(content);
     }
     return (
         <Button size={props.size} style={props.style} className={props.className} onClick={onClick}>
@@ -92,7 +109,7 @@ customFunctions.push((props: IButtonProps) => {
     const onClick = () => {
         if (!chatContext) return;
         const content = chatContext.chatRole?.otherNightReminder || '';
-        chatContext.setChatContent(content);
+        setInputValue(content);
     }
     return (
         <Button size={props.size} style={props.style} className={props.className} onClick={onClick}>

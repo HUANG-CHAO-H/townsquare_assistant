@@ -1,6 +1,5 @@
-import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
-import {clickChatButton, globalContext, writeChatContent} from "../script";
-import {sleep} from "../utils";
+import React, {useContext, useEffect, useMemo, useState} from "react";
+import {clickChatButton, globalContext, writeChatInput} from "../script";
 import {useGameState} from "./GameStateProvider";
 import {useRoleState} from "./GameRoleProvider";
 
@@ -13,10 +12,8 @@ interface IChatContext {
     chatPlayerSeat: number
     // 聊天框的标题(用户的username)
     chatTitle: string
-    // 聊天输入框中的信息
-    chatContent: string
-    // 修改聊天框中的信息
-    setChatContent: React.Dispatch<React.SetStateAction<string>>
+    // 聊天框中的信息
+    chatContent: NodeListOf<ChildNode> | null
     // 触发信息发送功能
     dispatchSendMsg(): void
 }
@@ -31,14 +28,17 @@ export function ChatProvider(props: {children?: React.ReactNode}) {
     const [chatRole, setChatRole] = useState<GameRoleInfo | undefined>(undefined);
     const [chatPlayerSeat, setChatPlayerSeat] = useState<number>(0);
     const [chatTitle, setChatTitle] = useState<string>('');
-    const [chatContent, setChatContent] = useState<string>('');
-
+    const [chatContent, setChatContent] = useState<NodeListOf<ChildNode> | null>(null);
     useEffect(() => {
         setChatTitle(globalContext.chatTitle);
+        setChatContent(globalContext.chatContent);
         globalContext.observe('chatTitle', setChatTitle);
-        return () => globalContext.unobserve('chatTitle', setChatTitle);
+        globalContext.observe('chatContent', setChatContent);
+        return () => {
+            globalContext.unobserve('chatTitle', setChatTitle);
+            globalContext.unobserve('chatContent', setChatContent);
+        }
     }, []);
-
     useEffect(() => {
         if (!gameState) return;
         const playerSeat = gameState.players.findIndex(value => value.name === chatTitle);
@@ -54,18 +54,10 @@ export function ChatProvider(props: {children?: React.ReactNode}) {
         }
     }, [gameState?.players, roleState?.currentRoles, chatTitle]);
 
-    const dispatchSendMsg = useCallback<IChatContext['dispatchSendMsg']>(() => {
-        setChatContent(oldValue => {
-            if (!oldValue || !writeChatContent(oldValue)) return oldValue;
-            sleep(50).then(clickChatButton as any);
-            return '';
-        });
-    }, [])
-
     const contextValue = useMemo<IChatContext>(() => ({
         chatPlayer, chatRole, chatPlayerSeat,
         chatTitle, chatContent,
-        setChatContent, dispatchSendMsg
+        dispatchSendMsg: clickChatButton,
     }), [chatPlayer, chatPlayerSeat, chatTitle, chatContent]);
 
     return <ChatContext.Provider value={contextValue}>{props.children}</ChatContext.Provider>

@@ -1,12 +1,20 @@
 import {sleep} from "../../utils";
 
-import {closeGameStateDialog, openGameStateDialog, readChatContent, readChatTitle, readGameState} from "./controls";
+import {
+    closeGameStateDialog,
+    openGameStateDialog,
+    readChatContent,
+    readChatInput,
+    readChatTitle,
+    readGameState, writeChatInput
+} from "./controls";
 import {globalContext} from "../globalContext";
 import {getChatDetailDiv} from "./getDomElement";
 
 export * from './controls';
 export * from './getDomElement';
 
+globalContext.observe('chatInput', value => writeChatInput(value));
 // 游戏状态JSON轮询
 async function gameStateLoop() {
     while (true) {
