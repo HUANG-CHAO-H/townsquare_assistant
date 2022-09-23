@@ -3,7 +3,7 @@ import {clickChatButton, globalContext, writeChatInput} from "../script";
 import {useGameState} from "./GameStateProvider";
 import {useRoleState} from "./GameRoleProvider";
 
-interface IChatContext {
+export interface IChatContext {
     // 处于当前聊天框的玩家信息
     chatPlayer: GamePlayerInfo | undefined
     // 当前聊天玩家的角色

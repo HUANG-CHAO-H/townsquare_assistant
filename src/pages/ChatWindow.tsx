@@ -2,14 +2,13 @@ import React, {useEffect, useRef, useState} from "react";
 import {Row, Col, TextArea, Button, Avatar} from "@douyinfe/semi-ui";
 import {RoleAvatar} from "../components/RoleAvatar";
 import {PlayerAvatar} from "../components/PlayerAvatar";
-import {useChatContext} from "../provider/ChatProvider";
-import {ReactiveData, sleep} from "../utils";
+import {IChatContext, useChatContext} from "../provider/ChatProvider";
+import {sleep} from "../utils";
 import {globalContext} from "../script";
 
 export function ChatWindow() {
     const chatContext = useChatContext();
     const [chatInput, setChatInput] = useState<string>('');
-    __setChatInput = setChatInput;
     // 聊天内容展示
     const divRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -42,7 +41,9 @@ export function ChatWindow() {
                 {chatContext.chatRole ? <RoleAvatar roleInfo={chatContext.chatRole} showName={false}/> : null}
                 <PlayerAvatar playerInfo={chatPlayer}/>
             </div>
-            <div style={{margin: '5px 0'}}>{customFunctions.map(Comp => <Comp size='small'/>)}</div>
+            <div style={{margin: '5px 0'}}>{
+                customFunctions.map((Comp, index) => <Comp key={index} setChatInput={setChatInput} chatContext={chatContext}/>)
+            }</div>
             <div ref={divRef} style={contentStyle}><div/></div>
             <Row gutter={16} type="flex" align="middle">
                 <Col span={20}>
@@ -52,11 +53,6 @@ export function ChatWindow() {
             </Row>
         </div>
     )
-}
-
-let __setChatInput: (value: string) => void;
-function setInputValue(value: string) {
-    __setChatInput?.(value);
 }
 
 const containerStyle: React.CSSProperties = {
@@ -79,40 +75,38 @@ const contentStyle: React.CSSProperties = {
 }
 
 interface IButtonProps {
-    // 按钮尺寸
-    size?: 'large' | 'default' | 'small'
-    // 按钮style
-    style?: React.CSSProperties
-    // 按钮class样式
-    className?: string
+    // 修改聊天输入框中的内容
+    setChatInput: React.Dispatch<React.SetStateAction<string>>
+    // context的值
+    chatContext: IChatContext | undefined
 }
 
 // 自定义功能列表
 const customFunctions: Array<(props: IButtonProps) => JSX.Element> = [];
 // 生成首夜信息按钮
 customFunctions.push((props: IButtonProps) => {
-    const chatContext = useChatContext();
+    const { chatContext, setChatInput } = props;
     const onClick = () => {
         if (!chatContext) return;
         const content = chatContext.chatRole?.firstNightReminder || '';
-        setInputValue(content);
+        setChatInput(content);
     }
     return (
-        <Button size={props.size} style={props.style} className={props.className} onClick={onClick}>
+        <Button size={'small'} onClick={onClick}>
             生成首夜信息
         </Button>
     );
 })
 // 生成非首夜信息按钮
 customFunctions.push((props: IButtonProps) => {
-    const chatContext = useChatContext();
+    const { chatContext, setChatInput } = props;
     const onClick = () => {
         if (!chatContext) return;
         const content = chatContext.chatRole?.otherNightReminder || '';
-        setInputValue(content);
+        setChatInput(content);
     }
     return (
-        <Button size={props.size} style={props.style} className={props.className} onClick={onClick}>
+        <Button size={'small'} onClick={onClick}>
             生成非首夜信息
         </Button>
     );
